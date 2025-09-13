@@ -1,5 +1,5 @@
+import { PrismaClient } from '@prisma/client';
 import { Request } from 'express';
-import { PrismaClient } from '../../../../generated/prisma';
 const prisma = new PrismaClient();
 
 const createParentCategory = async (req: Request) => {
@@ -9,6 +9,12 @@ const createParentCategory = async (req: Request) => {
   return result;
 };
 
+const getAllParentCategory = async () => {
+  const result = await prisma.parent_category.findMany();
+  return result;
+};
+
 export const PCategoryService = {
   createParentCategory,
+  getAllParentCategory,
 };

@@ -109,9 +109,7 @@ model ProviderServices{
 model Service_Category{
   id String @id @default(ulid())
   name String
-  icon String
-  description String
-  is_Active Boolean
+  is_Active Boolean @default(true)
   //relation
   parent_categoryId String
   parent_category Parent_category @relation(fields: [parent_categoryId], references: [id])
@@ -125,9 +123,7 @@ model Service_Category{
 model Parent_category{
   id String @id @default(ulid())
   name String
-  icon String
-  description String
-  is_Active Boolean
+  is_Active Boolean @default(true)
   category Service_Category[]
   @@map("parent_category")
 }

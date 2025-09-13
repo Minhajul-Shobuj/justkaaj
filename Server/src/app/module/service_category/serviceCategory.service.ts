@@ -1,5 +1,5 @@
+import { PrismaClient } from '@prisma/client';
 import { Request } from 'express';
-import { PrismaClient } from '../../../../generated/prisma';
 const prisma = new PrismaClient();
 
 const createServiceCategory = async (req: Request) => {
