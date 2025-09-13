@@ -16,7 +16,12 @@ const createServiceCategory = async (req: Request) => {
   });
   return result;
 };
+const getAllServiceCategory = async () => {
+  const result = await prisma.service_Category.findMany();
+  return result;
+};
 
 export const ServiceCategoryService = {
   createServiceCategory,
+  getAllServiceCategory,
 };

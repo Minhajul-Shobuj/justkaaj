@@ -80,8 +80,9 @@ model Service{
   id String @id @default(ulid())
   title String
   description String
-  base_price Float
-  price_unit String
+  area String
+  price Float
+  availability String
   estimed_duration String
   is_featured Boolean @default(false)
   avg_rating Float @default(0)

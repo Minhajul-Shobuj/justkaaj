@@ -12,5 +12,6 @@ router.post(
   ),
   ServiceCategoryController.createServiceCategory
 );
+router.get('/', ServiceCategoryController.getAllServiceCategory);
 
 export const ServiceCategoryRoute = router;

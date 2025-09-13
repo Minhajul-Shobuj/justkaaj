@@ -12,7 +12,17 @@ const createServiceCategory = catchAsync(async (req, res) => {
     data: result,
   });
 });
+const getAllServiceCategory = catchAsync(async (req, res) => {
+  const result = await ServiceCategoryService.getAllServiceCategory();
+  sendResponse(res, {
+    success: true,
+    statusCode: status.OK,
+    message: 'Successfully get All Service Category',
+    data: result,
+  });
+});
 
 export const ServiceCategoryController = {
   createServiceCategory,
+  getAllServiceCategory,
 };
