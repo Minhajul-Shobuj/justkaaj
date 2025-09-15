@@ -1,14 +1,11 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-"user server";
+"use server";
 
 import { cookies } from "next/headers";
 
-const cookie = await cookies();
-const accessToken = cookie.get("accessToken")?.value;
-
 //get all parent Category;
 export const getAllParentCategory = async () => {
-  const res = await fetch("/scategory", {
+  const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/pcategory`, {
     method: "GET",
     headers: {
       "Content-Type": "application/json",
@@ -22,7 +19,7 @@ export const getAllParentCategory = async () => {
 //get all service Category;
 export const getAllServiceCategory = async () => {
   try {
-    const res = await fetch("/scategory", {
+    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/scategory`, {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
@@ -37,18 +34,22 @@ export const getAllServiceCategory = async () => {
 };
 
 export const createService = async (serviceData: any) => {
+  const accessToken = (await cookies()).get("accessToken")?.value;
   if (!accessToken) {
     throw new Error("Access token is missing");
   }
   try {
-    const res = await fetch("api/services", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: accessToken,
-      },
-      body: JSON.stringify(serviceData),
-    });
+    const res = await fetch(
+      `${process.env.NEXT_PUBLIC_API_URL}/service/create`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: accessToken,
+        },
+        body: JSON.stringify(serviceData),
+      }
+    );
     const result = await res.json();
     return result;
   } catch (error) {
@@ -58,15 +59,11 @@ export const createService = async (serviceData: any) => {
 };
 
 export const getAllservices = async () => {
-  if (!accessToken) {
-    throw new Error("You are not authenticated");
-  }
   try {
     const res = await fetch("api/services", {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
-        Authorization: accessToken,
       },
       cache: "no-store",
     });

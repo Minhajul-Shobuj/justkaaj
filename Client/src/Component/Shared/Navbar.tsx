@@ -1,7 +1,7 @@
 "use client";
 import { protectedRoutes } from "@/constants";
 import { useUser } from "@/context/UserContext";
-import { getCurrentUser, logout } from "@/service/Auth";
+import { logout } from "@/service/Auth";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useState } from "react";
@@ -14,12 +14,22 @@ export default function Navbar() {
   const [isLegalDropdownOpen, setIsLegalDropdownOpen] = useState(false);
   const router = useRouter();
 
-  const handleLogOut = () => {
-    logout();
-    setIsLoading(true);
-    getCurrentUser();
-    if (protectedRoutes.some((route) => pathname.match(route))) {
-      router.push("/");
+  const handleLogOut = async () => {
+    try {
+      setIsLoading(true);
+      await logout();
+
+      // Re-fetch server state / user context
+      router.refresh();
+
+      // Optionally navigate away
+      if (protectedRoutes.some((route) => pathname.match(route))) {
+        router.push("/");
+      }
+    } catch (error) {
+      console.error("Logout failed:", error);
+    } finally {
+      setIsLoading(false);
     }
   };
 
