@@ -76,24 +76,37 @@ model Service_Provider{
   providerServices ProviderServices[]
   @@map("service_provider")
 }
-model Service{
-  id String @id @default(ulid())
-  title String
-  description String
-  area String
-  price Float
-  availability String
-  estimed_duration String
-  is_featured Boolean @default(false)
-  avg_rating Float @default(0)
-  is_active Boolean @default(false)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+model Service {
+  id              String   @id @default(ulid())
+  title           String
+  description     String
+  area            String
+  price           Float
+  is_featured     Boolean  @default(false)
+  avg_rating      Float    @default(0)
+  is_active       Boolean  @default(false)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
 
+  availabilities  ServiceAvailability[]   
   providerServices ProviderServices[]
-  category Service_Category[]
+  category         Service_Category[]
+
   @@map("services")
 }
+
+model ServiceAvailability {
+  id         String   @id @default(ulid())
+  day        String
+  startTime  String?
+  endTime    String?
+  isAvailable Boolean  @default(true) 
+
+  service   Service  @relation(fields: [serviceId], references: [id])
+  serviceId String
+}
+
+
 
 model ProviderServices{
   providerId String
