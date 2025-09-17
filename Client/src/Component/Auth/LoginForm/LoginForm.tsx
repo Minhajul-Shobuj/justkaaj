@@ -21,7 +21,6 @@ const LoginForm = () => {
   //     email: "mdminhajulislam@gmail.com",
   //     password: "Password",
   //   },
-  //test
 
   const searchParams = useSearchParams();
   const redirect = searchParams.get("redirectPath");
