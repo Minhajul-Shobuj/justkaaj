@@ -167,9 +167,22 @@ const getMe = async (req: Request) => {
   return result;
 };
 
+const updateProfileImg = async (req: Request) => {
+  const user = (req as any).user;
+  const { imgLink } = req.body;
+  const result = await prisma.user.update({
+    where: { email: user.email },
+    data: { profileImage: imgLink },
+    select: { user_id: true, profileImage: true },
+  });
+
+  return result;
+};
+
 export const UserService = {
   createUserIntoDb,
   createAdminIntoDb,
   createServiceProvider,
   getMe,
+  updateProfileImg,
 };

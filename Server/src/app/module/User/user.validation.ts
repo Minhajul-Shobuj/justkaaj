@@ -43,9 +43,15 @@ const createServiceProviderSchema = z.object({
     category: z.string(),
   }),
 });
+const updateProfileImg = z.object({
+  body: z.object({
+    profileImage: z.string(),
+  }),
+});
 
 export const UserValidation = {
   createAdminSchemaValidation,
   createUserSchemaValidation,
   createServiceProviderSchema,
+  updateProfileImg,
 };
