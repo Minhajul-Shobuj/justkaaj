@@ -169,10 +169,10 @@ const getMe = async (req: Request) => {
 
 const updateProfileImg = async (req: Request) => {
   const user = (req as any).user;
-  const { imgLink } = req.body;
+  const { profileImage } = req.body;
   const result = await prisma.user.update({
     where: { email: user.email },
-    data: { profileImage: imgLink },
+    data: { profileImage },
     select: { user_id: true, profileImage: true },
   });
 

@@ -116,6 +116,55 @@ export const myProfile = async () => {
   }
 };
 
-// const res = await fetch("http://localhost:5000/api/user/create-user", { ... });
-// const res = await fetch("http://147.79.68.37:5000/api/auth/login", { ... });
-// const res = await fetch("api/auth/my-profile", { ... });
+//update profileImage;
+export const updateProfileImg = async (url: string) => {
+  const accessToken = (await cookies()).get("accessToken")?.value;
+
+  if (!accessToken) {
+    throw new Error("Access token is missing");
+  }
+
+  try {
+    const res = await fetch(
+      `${process.env.NEXT_PUBLIC_API_URL}/user/update-profileImg`,
+      {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: accessToken,
+        },
+        body: JSON.stringify({ profileImage: url }),
+      }
+    );
+    const result = await res.json();
+    return result;
+  } catch (error) {
+    console.error("Error updating profile Image:", error);
+    throw new Error("Failed to update profile Image");
+  }
+};
+
+export const uploadToCloudinary = async (file: File) => {
+  const formData = new FormData();
+  formData.append("file", file);
+  formData.append(
+    "upload_preset",
+    process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET!
+  );
+
+  const res = await fetch(
+    `https://api.cloudinary.com/v1_1/${process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME}/image/upload`,
+    {
+      method: "POST",
+      body: formData,
+    }
+  );
+
+  if (!res.ok) {
+    const errText = await res.text();
+    throw new Error(`Cloudinary upload failed: ${res.status} ${errText}`);
+  }
+
+  const data = await res.json();
+  return data.secure_url;
+};

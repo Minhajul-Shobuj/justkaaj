@@ -29,7 +29,7 @@ router.get(
   UserController.getMe
 );
 router.patch(
-  '/update-profile',
+  '/update-profileImg',
   auth(UserRole.SERVICE_PROVIDER, UserRole.USER, UserRole.ADMIN),
   validateRequest(UserValidation.updateProfileImg),
   UserController.updateProfileImg

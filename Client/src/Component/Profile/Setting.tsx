@@ -1,44 +1,46 @@
 "use client";
+import {
+  myProfile,
+  updateProfileImg,
+  uploadToCloudinary,
+} from "@/service/Auth";
+import { TUser } from "@/types";
 import ImageUploader from "@/ui/ImageUploader";
 import ImagePreviewer from "@/ui/ImageUploader/ImagePreviewer";
+import Image from "next/image";
 import React, { useState, useEffect } from "react";
 
 const Setting = () => {
+  const [data, setData] = useState<TUser | null>(null);
   const [imageFiles, setImageFiles] = useState<File[]>([]);
   const [imagePreview, setImagePreview] = useState<string[]>([]);
   const [uploading, setUploading] = useState(false);
-  const [uploadedUrl, setUploadedUrl] = useState<string | null>(null);
   const [isUpdating, setIsUpdating] = useState(false);
 
   // Simulate fetching user profile image from API/DB
   useEffect(() => {
-    const existingProfileImg =
-      "https://res.cloudinary.com/demo/image/upload/w_200,h_200,c_fill,r_max/sample.jpg"; // replace with API data
-    setUploadedUrl(existingProfileImg);
+    async function fetchData() {
+      try {
+        const res = await myProfile(); // fetch profile
+        setData(res.data);
+      } catch (error) {
+        console.error("Failed to fetch profile:", error);
+      }
+    }
+
+    fetchData();
   }, []);
 
   const handleUpload = async () => {
     if (!imageFiles.length) return;
 
-    const formData = new FormData();
-    formData.append("file", imageFiles[0]);
-    formData.append("upload_preset", "YOUR_UPLOAD_PRESET"); // from Cloudinary
-
     try {
       setUploading(true);
-      const res = await fetch(
-        "https://api.cloudinary.com/v1_1/YOUR_CLOUD_NAME/image/upload",
-        {
-          method: "POST",
-          body: formData,
-        }
-      );
-
-      const data = await res.json();
-      setUploadedUrl(data.secure_url); // save new image
+      const uploadedUrl = await uploadToCloudinary(imageFiles[0]);
+      await updateProfileImg(uploadedUrl);
       setImageFiles([]);
       setImagePreview([]);
-      setIsUpdating(false); // exit update mode
+      setIsUpdating(false);
     } catch (error) {
       console.error("Cloudinary upload error:", error);
     } finally {
@@ -49,9 +51,8 @@ const Setting = () => {
   const handleCancelUpdate = () => {
     setImageFiles([]);
     setImagePreview([]);
-    setIsUpdating(false); // back to old profile image
+    setIsUpdating(false);
   };
-
   return (
     <div>
       <h2 className="text-xl font-semibold text-gray-900 mb-6">
@@ -66,12 +67,17 @@ const Setting = () => {
 
           <div className="flex flex-col items-center gap-4">
             {/* If profile image exists and not updating */}
-            {uploadedUrl && !isUpdating && (
+            {data && !isUpdating && (
               <div className="flex flex-col items-center">
-                <img
-                  src={uploadedUrl}
+                <Image
+                  src={
+                    data?.profileImage ||
+                    "https://res.cloudinary.com/dazztziwj/image/upload/v1735143257/samples/smile.jpg"
+                  }
                   alt="Profile"
                   className="w-32 h-32 rounded-full object-cover shadow-md"
+                  width={100}
+                  height={100}
                 />
                 <button
                   onClick={() => setIsUpdating(true)}
@@ -83,7 +89,7 @@ const Setting = () => {
             )}
 
             {/* Update mode */}
-            {(!uploadedUrl || isUpdating) && (
+            {(!data?.profileImage || isUpdating) && (
               <>
                 {imageFiles.length === 0 && (
                   <ImageUploader
