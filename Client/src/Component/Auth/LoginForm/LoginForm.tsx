@@ -15,12 +15,12 @@ const LoginForm = () => {
     register,
     handleSubmit,
     formState: { errors },
-  } = useForm<FormValues>({
-    defaultValues: {
-      email: "mdminhajulislam@gmail.com",
-      password: "Password",
-    },
-  });
+  } = useForm<FormValues>({});
+
+  //  defaultValues: {
+  //     email: "mdminhajulislam@gmail.com",
+  //     password: "Password",
+  //   },
 
   const searchParams = useSearchParams();
   const redirect = searchParams.get("redirectPath");
