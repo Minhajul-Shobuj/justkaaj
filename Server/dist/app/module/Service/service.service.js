@@ -1,29 +1,45 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.ServiceOfService = void 0;
-const prisma_1 = require("../../../../generated/prisma");
-const prisma = new prisma_1.PrismaClient();
+/* eslint-disable @typescript-eslint/no-explicit-any */
+const client_1 = require("@prisma/client");
+const prisma = new client_1.PrismaClient();
 const createServiceIntodb = async (req) => {
-    const { category, ...serviceData } = req.body;
+    const { category, availabilities, ...serviceData } = req.body;
     const user = req.user;
+    const providerData = await prisma.service_Provider.findUniqueOrThrow({
+        where: {
+            email: user.email,
+        },
+    });
     const result = await prisma.$transaction(async (trns) => {
+        // Create the service with nested availabilities + categories
         const createService = await trns.service.create({
-            data: serviceData,
+            data: {
+                ...serviceData,
+                availabilities: {
+                    create: availabilities.map((a) => ({
+                        day: a.day,
+                        startTime: a.isAvailable ? a.startTime : null,
+                        endTime: a.isAvailable ? a.endTime : null,
+                        isAvailable: a.isAvailable,
+                    })),
+                },
+                category: {
+                    connect: category.map((catId) => ({ id: catId })),
+                },
+            },
         });
+        // Link provider to service
         const setProvider = await trns.providerServices.create({
             data: {
-                providerId: user.id,
+                providerId: providerData.id,
                 serviceId: createService.id,
             },
         });
-        const setCategory = await category.map((catId) => trns.service_Category.update({
-            where: { id: catId },
-            data: { service_id: createService.id },
-        }));
         return {
-            setProvider,
             createService,
-            setCategory,
+            setProvider,
         };
     });
     return result;

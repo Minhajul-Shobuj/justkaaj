@@ -17,6 +17,16 @@ const createParentCategory = (0, catchAsync_1.default)(async (req, res) => {
         statusCode: http_status_1.default.CREATED,
     });
 });
+const getAllParentCategory = (0, catchAsync_1.default)(async (req, res) => {
+    const result = await parent_category_service_1.PCategoryService.getAllParentCategory();
+    (0, sendResponse_1.default)(res, {
+        success: true,
+        message: 'Successfully get All parent Category',
+        data: result,
+        statusCode: http_status_1.default.OK,
+    });
+});
 exports.PCategoryController = {
     createParentCategory,
+    getAllParentCategory,
 };

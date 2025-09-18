@@ -44,9 +44,19 @@ const getMe = (0, catchAsync_1.default)(async (req, res) => {
         data: result,
     });
 });
+const updateProfileImg = (0, catchAsync_1.default)(async (req, res) => {
+    const result = await user_service_1.UserService.updateProfileImg(req);
+    (0, sendResponse_1.default)(res, {
+        success: true,
+        statusCode: http_status_1.default.OK,
+        message: 'Profile Image updated successfully',
+        data: result,
+    });
+});
 exports.UserController = {
     createUser,
     createAdmin,
     createServicePorvider,
     getMe,
+    updateProfileImg,
 };

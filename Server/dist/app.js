@@ -26,7 +26,7 @@ app.use('/api/service', service_route_1.ServiceRoute);
 app.use('/api/pcategory', parent_category_route_1.PCategoryRoute);
 app.use('/api/scategory', serviceCategory_route_1.ServiceCategoryRoute);
 app.get('/', (req, res) => {
-    res.send('Hello from Service360');
+    res.send('Hello from JustKaaj Server');
 });
 app.use(notFound_1.default);
 app.use(globalErrorHandler_1.default);

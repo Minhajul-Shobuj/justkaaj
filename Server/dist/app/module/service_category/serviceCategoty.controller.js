@@ -17,6 +17,16 @@ const createServiceCategory = (0, catchAsync_1.default)(async (req, res) => {
         data: result,
     });
 });
+const getAllServiceCategory = (0, catchAsync_1.default)(async (req, res) => {
+    const result = await serviceCategory_service_1.ServiceCategoryService.getAllServiceCategory();
+    (0, sendResponse_1.default)(res, {
+        success: true,
+        statusCode: http_status_1.default.OK,
+        message: 'Successfully get All Service Category',
+        data: result,
+    });
+});
 exports.ServiceCategoryController = {
     createServiceCategory,
+    getAllServiceCategory,
 };

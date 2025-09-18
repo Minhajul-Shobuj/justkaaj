@@ -43,8 +43,14 @@ const createServiceProviderSchema = zod_1.z.object({
         category: zod_1.z.string(),
     }),
 });
+const updateProfileImg = zod_1.z.object({
+    body: zod_1.z.object({
+        profileImage: zod_1.z.string(),
+    }),
+});
 exports.UserValidation = {
     createAdminSchemaValidation,
     createUserSchemaValidation,
     createServiceProviderSchema,
+    updateProfileImg,
 };
