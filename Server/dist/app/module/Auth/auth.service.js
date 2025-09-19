@@ -6,14 +6,14 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.AuthService = void 0;
 const bcrypt_1 = __importDefault(require("bcrypt"));
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
-const prisma_1 = require("../../../../generated/prisma");
 const config_1 = __importDefault(require("../../config"));
-const prisma = new prisma_1.PrismaClient();
+const client_1 = require("@prisma/client");
+const prisma = new client_1.PrismaClient();
 const userLogin = async (payload) => {
     const userData = await prisma.user.findUniqueOrThrow({
         where: {
             email: payload.email,
-            status: prisma_1.USER_STATUS.ACTIVE,
+            status: client_1.USER_STATUS.ACTIVE,
         },
     });
     const checkingPassword = await bcrypt_1.default.compare(payload.password, userData.password);
@@ -43,7 +43,7 @@ const refreshToken = async (token) => {
     const userData = prisma.user.findUniqueOrThrow({
         where: {
             email: decoded?.email,
-            status: prisma_1.USER_STATUS.ACTIVE,
+            status: client_1.USER_STATUS.ACTIVE,
         },
     });
     const accessToken = await jsonwebtoken_1.default.sign({

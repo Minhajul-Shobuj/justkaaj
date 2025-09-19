@@ -4,9 +4,9 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.UserService = void 0;
-const prisma_1 = require("../../../../generated/prisma");
 const bcrypt_1 = __importDefault(require("bcrypt"));
-const prisma = new prisma_1.PrismaClient();
+const client_1 = require("@prisma/client");
+const prisma = new client_1.PrismaClient();
 const createUserIntoDb = async (req) => {
     const data = req.body;
     const { address, ...userData } = data;
@@ -40,7 +40,7 @@ const createAdminIntoDb = async (req) => {
     };
     const result = prisma.$transaction(async (trns) => {
         const user = await trns.user.create({
-            data: { ...userData, role: prisma_1.UserRole.ADMIN },
+            data: { ...userData, role: client_1.UserRole.ADMIN },
         });
         const setAddress = await trns.address.create({
             data: {
@@ -71,7 +71,7 @@ const createServiceProvider = async (req) => {
         password: hashedPassword,
         fullName: data.fullName,
         phone: data.phone,
-        role: prisma_1.UserRole.SERVICE_PROVIDER,
+        role: client_1.UserRole.SERVICE_PROVIDER,
     };
     // remove fields that should not go into provider table
     const keyToRemove = ['password', 'role', 'phone', 'agree'];
@@ -97,11 +97,11 @@ const createServiceProvider = async (req) => {
         }
         else {
             // user already exists → upgrade role if not SERVICE_PROVIDER
-            if (existingUser.role !== prisma_1.UserRole.SERVICE_PROVIDER) {
+            if (existingUser.role !== client_1.UserRole.SERVICE_PROVIDER) {
                 user = await trns.user.update({
                     where: { user_id: existingUser.user_id },
                     data: {
-                        role: prisma_1.UserRole.SERVICE_PROVIDER,
+                        role: client_1.UserRole.SERVICE_PROVIDER,
                     },
                 });
             }

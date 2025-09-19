@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { Request } from 'express';
-import { PrismaClient, UserRole } from '../../../../generated/prisma';
 import bcrypt from 'bcrypt';
+import { PrismaClient, UserRole } from '@prisma/client';
 
 const prisma = new PrismaClient();
 

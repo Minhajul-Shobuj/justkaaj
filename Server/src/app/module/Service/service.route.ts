@@ -1,9 +1,9 @@
 import express from 'express';
 import { ServiceController } from './service.controller';
 import auth from '../../middlewares/auth';
-import { UserRole } from '../../../../generated/prisma';
 import validateRequest from '../../middlewares/validateRequest';
 import { ServiceValidation } from './service.validation';
+import { UserRole } from '@prisma/client';
 
 const router = express.Router();
 
