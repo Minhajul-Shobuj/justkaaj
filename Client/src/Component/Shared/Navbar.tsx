@@ -1,18 +1,35 @@
 "use client";
 import { protectedRoutes } from "@/constants";
 import { useUser } from "@/context/UserContext";
-import { logout } from "@/service/Auth";
+import { logout, myProfile } from "@/service/Auth";
+import { TUser } from "@/types";
+import Image from "next/image";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 export default function Navbar() {
   const { user, setIsLoading } = useUser();
+  const [profileData, setProfileData] = useState<TUser | null>(null);
   const pathname = usePathname();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isProfileDropdownOpen, setIsProfileDropdownOpen] = useState(false);
   const [isLegalDropdownOpen, setIsLegalDropdownOpen] = useState(false);
   const router = useRouter();
+
+  // fetch profile
+  const fetchData = async () => {
+    try {
+      const res = await myProfile();
+      setProfileData(res.data);
+    } catch (error) {
+      console.error("Failed to fetch profile:", error);
+    }
+  };
+
+  useEffect(() => {
+    fetchData();
+  }, []);
 
   const handleLogOut = async () => {
     try {
@@ -163,11 +180,21 @@ export default function Navbar() {
               <button
                 onClick={() => setIsProfileDropdownOpen(!isProfileDropdownOpen)}
                 className="flex items-center justify-center w-9 h-9 rounded-full border-2 border-green-600
-             bg-gray-100 text-gray-700 hover:bg-green-100 hover:text-green-600 
-             focus:outline-none focus:ring-2 focus:ring-green-400 
-             transition-all duration-200"
+    bg-gray-100 text-gray-700 hover:bg-green-100 hover:text-green-600 
+    focus:outline-none focus:ring-2 focus:ring-green-400 
+    transition-all duration-200 overflow-hidden"
               >
-                <span className="text-lg">👤</span>
+                {profileData?.profileImage ? (
+                  <Image
+                    width={100}
+                    height={100}
+                    src={profileData.profileImage}
+                    alt="Profile"
+                    className="w-full h-full object-cover rounded-full"
+                  />
+                ) : (
+                  <span className="text-lg">👤</span>
+                )}
               </button>
 
               {isProfileDropdownOpen && (
