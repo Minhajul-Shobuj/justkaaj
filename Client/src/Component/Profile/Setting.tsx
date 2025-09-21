@@ -17,17 +17,17 @@ const Setting = () => {
   const [uploading, setUploading] = useState(false);
   const [isUpdating, setIsUpdating] = useState(false);
 
-  // Simulate fetching user profile image from API/DB
-  useEffect(() => {
-    async function fetchData() {
-      try {
-        const res = await myProfile(); // fetch profile
-        setData(res.data);
-      } catch (error) {
-        console.error("Failed to fetch profile:", error);
-      }
+  // fetch profile
+  const fetchData = async () => {
+    try {
+      const res = await myProfile();
+      setData(res.data);
+    } catch (error) {
+      console.error("Failed to fetch profile:", error);
     }
+  };
 
+  useEffect(() => {
     fetchData();
   }, []);
 
@@ -38,6 +38,7 @@ const Setting = () => {
       setUploading(true);
       const uploadedUrl = await uploadToCloudinary(imageFiles[0]);
       await updateProfileImg(uploadedUrl);
+      await fetchData(); // refresh profile with new image
       setImageFiles([]);
       setImagePreview([]);
       setIsUpdating(false);
@@ -53,6 +54,7 @@ const Setting = () => {
     setImagePreview([]);
     setIsUpdating(false);
   };
+
   return (
     <div>
       <h2 className="text-xl font-semibold text-gray-900 mb-6">
@@ -67,17 +69,14 @@ const Setting = () => {
 
           <div className="flex flex-col items-center gap-4">
             {/* If profile image exists and not updating */}
-            {data && !isUpdating && (
+            {data?.profileImage && !isUpdating && (
               <div className="flex flex-col items-center">
                 <Image
-                  src={
-                    data?.profileImage ||
-                    "https://res.cloudinary.com/dazztziwj/image/upload/v1735143257/samples/smile.jpg"
-                  }
+                  src={data.profileImage}
                   alt="Profile"
                   className="w-32 h-32 rounded-full object-cover shadow-md"
-                  width={100}
-                  height={100}
+                  width={128}
+                  height={128}
                 />
                 <button
                   onClick={() => setIsUpdating(true)}
@@ -88,7 +87,7 @@ const Setting = () => {
               </div>
             )}
 
-            {/* Update mode */}
+            {/* Show uploader if no profile image or in update mode */}
             {(!data?.profileImage || isUpdating) && (
               <>
                 {imageFiles.length === 0 && (
@@ -115,12 +114,16 @@ const Setting = () => {
                       {uploading ? "Uploading..." : "Upload"}
                     </button>
                   )}
-                  <button
-                    onClick={handleCancelUpdate}
-                    className="bg-gray-300 hover:bg-gray-400 text-gray-800 px-4 py-2 rounded-md text-sm font-medium transition-colors"
-                  >
-                    Cancel
-                  </button>
+
+                  {/* Show Cancel button only if user ALREADY has a profile image */}
+                  {data?.profileImage && (
+                    <button
+                      onClick={handleCancelUpdate}
+                      className="bg-gray-300 hover:bg-gray-400 text-gray-800 px-4 py-2 rounded-md text-sm font-medium transition-colors"
+                    >
+                      Cancel
+                    </button>
+                  )}
                 </div>
               </>
             )}
