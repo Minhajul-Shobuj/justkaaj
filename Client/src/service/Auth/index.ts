@@ -106,7 +106,7 @@ export const myProfile = async () => {
         "Content-Type": "application/json",
         Authorization: accessToken,
       },
-      cache: "force-cache",
+      cache: "no-store",
     });
     const result = await res.json();
     return result;
