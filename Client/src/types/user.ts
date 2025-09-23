@@ -20,16 +20,34 @@ export type TUser = {
   user_id: string;
   fullName: string;
   email: string;
+  password: string;
   phone: string;
-  address?: TAddress;
-  profileImage: string | null;
   role: "SUPER_ADMIN" | "USER" | "ADMIN" | "SERVICE_PROVIDER";
   status: "ACTIVE" | "BLOCKED" | "DELETED";
+  profileImage: string;
   is_verified: boolean;
   agree: boolean;
-  service_provider: string | null;
+
   createdAt: string;
   updatedAt: string;
+
+  address: TAddress;
+
+  service_provider?: {
+    id: string;
+    fullName: string;
+    email: string;
+    business_name: string;
+    business_license: string;
+    nid_number: string;
+    govt_id_or_tin: string;
+    category: string;
+    facebook_profile?: string;
+    website_link?: string;
+    submitted_at: string;
+    status: "PENDING" | "ACTIVE";
+    is_apporved: boolean;
+  };
 };
 
 export type TRegisterUser = {
