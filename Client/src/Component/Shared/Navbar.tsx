@@ -17,19 +17,20 @@ export default function Navbar() {
   const [isLegalDropdownOpen, setIsLegalDropdownOpen] = useState(false);
   const router = useRouter();
 
-  // fetch profile
-  const fetchData = async () => {
-    try {
-      const res = await myProfile();
-      setProfileData(res.data);
-    } catch (error) {
-      console.error("Failed to fetch profile:", error);
-    }
-  };
-
   useEffect(() => {
+    if (!user) return;
+
+    const fetchData = async () => {
+      try {
+        const res = await myProfile();
+        setProfileData(res.data);
+      } catch (error) {
+        console.error("Failed to fetch profile:", error);
+      }
+    };
+
     fetchData();
-  }, []);
+  }, [user]);
 
   const handleLogOut = async () => {
     try {
