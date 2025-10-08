@@ -60,13 +60,18 @@ export const createService = async (serviceData: any) => {
 
 export const getAllservices = async () => {
   try {
-    const res = await fetch("api/services", {
+    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/service`, {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
       },
-      cache: "no-store",
+      cache: "no-store", // ensures fresh data each time
     });
+
+    if (!res.ok) {
+      throw new Error(`Failed to fetch: ${res.status}`);
+    }
+
     const result = await res.json();
     return result;
   } catch (error) {

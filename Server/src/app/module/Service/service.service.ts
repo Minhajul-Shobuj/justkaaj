@@ -51,10 +51,21 @@ const createServiceIntodb = async (req: Request) => {
 const getAllServicesFromDb = async () => {
   const result = await prisma.service.findMany({
     include: {
-      providerServices: true,
-      category: true,
+      providerServices: {
+        include: {
+          service_provider: {
+            include: { user: true },
+          },
+        },
+      },
+      category: {
+        include: {
+          parent_category: true, // add this if you want parent info
+        },
+      },
     },
   });
+
   return result;
 };
 

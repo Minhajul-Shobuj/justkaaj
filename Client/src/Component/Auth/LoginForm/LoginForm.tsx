@@ -15,7 +15,7 @@ const LoginForm = () => {
     register,
     handleSubmit,
     formState: { errors },
-  } = useForm<FormValues>({});
+  } = useForm<FormValues>();
 
   const searchParams = useSearchParams();
   const redirect = searchParams.get("redirectPath");
