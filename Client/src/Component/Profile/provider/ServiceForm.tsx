@@ -35,7 +35,7 @@ export default function AddServicePage() {
       area: "",
       price: "",
       parentCategory: "",
-      category: "",
+      category: [],
       availabilities: weekDays.map((day) => ({
         day,
         startTime: "09:00",
@@ -148,15 +148,16 @@ export default function AddServicePage() {
         </div>
 
         {/* Service Category */}
+        {/* Service Category (multiple) */}
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-1">
             Service Category
           </label>
           <select
             {...register("category", { required: true })}
-            className="w-full text-black px-3 py-2 border rounded-md border-gray-300 focus:border-green-500 focus:ring-1 focus:ring-green-500"
+            multiple
+            className="w-full text-black px-3 py-2 border rounded-md border-gray-300 focus:border-green-500 focus:ring-1 focus:ring-green-500 h-32"
           >
-            <option value="">Select Service Category</option>
             {serviceCategories.map((cat) => (
               <option key={cat.id} value={cat.id}>
                 {cat.name}
