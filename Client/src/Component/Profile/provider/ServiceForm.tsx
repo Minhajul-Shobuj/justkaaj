@@ -20,13 +20,13 @@ const weekDays = [
   "Sunday",
 ];
 
-export default function AddServicePage() {
+export default function AddService() {
   const [parentCategories, setParentCategories] = useState<TServiceCategory[]>(
     []
   );
-  const [serviceCategories, setServiceCategories] = useState<TParentcategory[]>(
-    []
-  );
+  const [serviceCategories, setServiceCategories] = useState<
+    TServiceCategory[]
+  >([]);
 
   const { register, handleSubmit, control, reset, watch } = useForm<TService>({
     defaultValues: {
@@ -58,11 +58,9 @@ export default function AddServicePage() {
   const onSubmit = async (data: TService) => {
     reset();
     try {
-      const { parentCategory, ...rest } = data;
       const cleaned = {
-        ...rest,
-        category: [rest.category],
-        price: Number(rest.price),
+        ...data,
+        price: Number(data.price),
         availabilities: data.availabilities.map((a) => ({
           ...a,
           startTime: a.isAvailable ? a.startTime : "not available",
@@ -147,26 +145,55 @@ export default function AddServicePage() {
           </select>
         </div>
 
-        {/* Service Category */}
-        {/* Service Category (multiple) */}
-        <div>
+        {/* Service Category (Chip Style) */}
+        <div className="md:col-span-2">
           <label className="block text-sm font-medium text-gray-700 mb-1">
             Service Category
           </label>
-          <select
-            {...register("category", { required: true })}
-            multiple
-            className="w-full text-black px-3 py-2 border rounded-md border-gray-300 focus:border-green-500 focus:ring-1 focus:ring-green-500 h-32"
-          >
-            {serviceCategories.map((cat) => (
-              <option key={cat.id} value={cat.id}>
-                {cat.name}
-              </option>
-            ))}
-          </select>
+
+          <Controller
+            name="category"
+            control={control}
+            render={({ field }) => {
+              const selectedIds: string[] = (
+                field.value as TServiceCategory[] | string[]
+              ).map((item) => (typeof item === "string" ? item : item.id));
+
+              return (
+                <div className="flex flex-wrap gap-2 min-h-[80px] p-2 border rounded-md border-gray-300">
+                  {serviceCategories.map((cat) => {
+                    const isSelected = selectedIds.includes(cat.id);
+
+                    return (
+                      <button
+                        type="button"
+                        key={cat.id}
+                        onClick={() => {
+                          if (isSelected) {
+                            field.onChange(
+                              selectedIds.filter((id) => id !== cat.id)
+                            );
+                          } else {
+                            field.onChange([...selectedIds, cat.id]);
+                          }
+                        }}
+                        className={`px-3 py-1 rounded-full text-sm font-medium transition ${
+                          isSelected
+                            ? "bg-green-600 text-white border-green-600"
+                            : "bg-gray-100 text-gray-700 border border-gray-300"
+                        } hover:opacity-80`}
+                      >
+                        {cat.name}
+                      </button>
+                    );
+                  })}
+                </div>
+              );
+            }}
+          />
         </div>
 
-        {/* Description (full width) */}
+        {/* Description */}
         <div className="md:col-span-2">
           <label className="block text-sm font-medium text-gray-700 mb-1">
             Description
@@ -178,7 +205,8 @@ export default function AddServicePage() {
             className="w-full text-black px-3 py-2 border rounded-md border-gray-300 focus:border-green-500 focus:ring-1 focus:ring-green-500"
           />
         </div>
-        {/* Availabilities (full width) */}
+
+        {/* Availabilities */}
         <div className="md:col-span-2">
           <h3 className="text-md font-semibold text-gray-800 mb-3">
             Weekly Availability
@@ -198,10 +226,10 @@ export default function AddServicePage() {
                     render={({ field }) => (
                       <select
                         {...field}
-                        value={field.value ? "true" : "false"} // convert boolean to string
+                        value={field.value ? "true" : "false"}
                         onChange={(e) =>
                           field.onChange(e.target.value === "true")
-                        } // string -> boolean
+                        }
                         className="px-2 py-1 text-black border rounded-md border-gray-300 focus:border-green-500 focus:ring-1 focus:ring-green-500"
                       >
                         <option value="true">Available</option>
