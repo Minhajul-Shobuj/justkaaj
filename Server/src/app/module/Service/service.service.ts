@@ -73,8 +73,18 @@ const getServiceByIdFromDb = async (serviceId: string) => {
   const result = await prisma.service.findUnique({
     where: { id: serviceId },
     include: {
-      providerServices: true,
-      category: true,
+      providerServices: {
+        include: {
+          service_provider: {
+            include: { user: true },
+          },
+        },
+      },
+      category: {
+        include: {
+          parent_category: true,
+        },
+      },
     },
   });
   return result;
