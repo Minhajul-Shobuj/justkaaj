@@ -5,7 +5,7 @@ type Role = keyof typeof roleBasedPrivateRoutes;
 const authRoutes = ["/login", "/register"];
 const roleBasedPrivateRoutes = {
   ADMIN: [/^\/admin/, /^\/profile/],
-  USER: [/^\/user/, /^\/profile/],
+  USER: [/^\/user/, /^\/profile/, /^\/checkout/],
   SERVICE_PROVIDER: [/^\/service_provider/, /^\/profile/],
 };
 
@@ -20,7 +20,7 @@ export const middleware = async (request: NextRequest) => {
     } else {
       return NextResponse.redirect(
         new URL(
-          `http://localhost:3000/login?redirectPath=${pathname}`,
+          `${process.env.NEXT_PUBLIC_URL}/login?redirectPath=${pathname}`,
           request.url
         )
       );
@@ -45,5 +45,6 @@ export const config = {
     "/user/:path*",
     "/profile/:path*",
     "/dashboard/:path*",
+    "/checkout",
   ],
 };

@@ -9,6 +9,7 @@ import { getServiceByID } from "@/service/servicesApi";
 import Loading from "@/app/loading";
 import Footer from "@/Component/Shared/Footer";
 import Navbar from "@/Component/Shared/Navbar";
+import Link from "next/link";
 
 export default function ServiceDetailsPage() {
   const { id } = useParams();
@@ -128,9 +129,11 @@ export default function ServiceDetailsPage() {
                 )}
               </div>
 
-              <button className="w-full py-3 bg-green-600 text-white font-semibold rounded-xl shadow hover:bg-green-700 transition">
-                Continue to Booking
-              </button>
+              <Link href={"/checkout"}>
+                <button className="w-full py-3 bg-green-600 text-white font-semibold rounded-xl shadow hover:bg-green-700 transition">
+                  Continue to Booking
+                </button>
+              </Link>
 
               <div className="text-gray-500 text-sm">
                 Secure payment, easy communication with provider.
