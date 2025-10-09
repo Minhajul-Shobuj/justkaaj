@@ -60,9 +60,11 @@ const getAllServicesFromDb = async () => {
       },
       category: {
         include: {
-          parent_category: true, // add this if you want parent info
+          parent_category: true,
         },
       },
+      availabilities: true,
+      orders: true,
     },
   });
 
@@ -85,6 +87,8 @@ const getServiceByIdFromDb = async (serviceId: string) => {
           parent_category: true,
         },
       },
+      availabilities: true,
+      orders: true,
     },
   });
   return result;
