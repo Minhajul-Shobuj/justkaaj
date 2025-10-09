@@ -41,6 +41,8 @@ updatedAt DateTime @updatedAt
 service_provider Service_Provider?
 Admin Admin?
 
+orders Order[]
+
 @@map("users")
 }
 
@@ -74,6 +76,7 @@ model Service_Provider{
   //relation
   user User @relation(fields: [email], references: [email])
   providerServices ProviderServices[]
+  orders Order[]
   @@map("service_provider")
 }
 model Service {
@@ -91,6 +94,7 @@ model Service {
   availabilities  ServiceAvailability[]   
   providerServices ProviderServices[]
   category         Service_Category[]
+  orders Order[]
 
   @@map("services")
 }
@@ -141,6 +145,28 @@ model Parent_category{
   category Service_Category[]
   @@map("parent_category")
 }
+model Order {
+  id          String   @id @default(ulid())
+  serviceId   String
+  service     Service  @relation(fields: [serviceId], references: [id])
+
+  userId      String
+  user        User     @relation( fields: [userId], references: [user_id])
+
+  providerId  String
+  provider    Service_Provider   @relation( fields: [providerId], references: [id])
+
+  status      Order_Status @default(PENDING) 
+  price       Float
+  quantity    Int? 
+
+  scheduledDate DateTime
+  scheduledTime String
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
 
 enum UserRole{
   SUPER_ADMIN
@@ -157,4 +183,12 @@ enum USER_STATUS{
 enum Provider_Status{
   PENDING
   ACTIVE
+}
+enum Order_Status{
+  PENDING
+  CONFIRMED
+  IN_PROGRESS
+  COMPLETED
+  CANCELLED
+  REJECTED
 }

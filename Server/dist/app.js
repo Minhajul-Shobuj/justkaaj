@@ -12,6 +12,7 @@ const service_route_1 = require("./app/module/Service/service.route");
 const globalErrorHandler_1 = __importDefault(require("./app/middlewares/globalErrorHandler"));
 const parent_category_route_1 = require("./app/module/parent_category/parent_category.route");
 const serviceCategory_route_1 = require("./app/module/service_category/serviceCategory.route");
+const order_route_1 = require("./app/module/Order/order.route");
 const app = (0, express_1.default)();
 app.use((0, cors_1.default)({
     origin: ['http://localhost:3000'],
@@ -25,6 +26,7 @@ app.use('/api/user', user_route_1.UserRoute);
 app.use('/api/service', service_route_1.ServiceRoute);
 app.use('/api/pcategory', parent_category_route_1.PCategoryRoute);
 app.use('/api/scategory', serviceCategory_route_1.ServiceCategoryRoute);
+app.use('/api/order', order_route_1.OrderRoutes);
 app.get('/', (req, res) => {
     res.send('Hello from JustKaaj Server');
 });

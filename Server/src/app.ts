@@ -7,6 +7,7 @@ import { ServiceRoute } from './app/module/Service/service.route';
 import globalErrorHandler from './app/middlewares/globalErrorHandler';
 import { PCategoryRoute } from './app/module/parent_category/parent_category.route';
 import { ServiceCategoryRoute } from './app/module/service_category/serviceCategory.route';
+import { OrderRoutes } from './app/module/Order/order.route';
 
 const app: Application = express();
 app.use(
@@ -24,6 +25,7 @@ app.use('/api/user', UserRoute);
 app.use('/api/service', ServiceRoute);
 app.use('/api/pcategory', PCategoryRoute);
 app.use('/api/scategory', ServiceCategoryRoute);
+app.use('/api/order', OrderRoutes);
 
 app.get('/', (req, res) => {
   res.send('Hello from JustKaaj Server');
