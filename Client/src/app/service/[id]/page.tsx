@@ -129,7 +129,7 @@ export default function ServiceDetailsPage() {
                 )}
               </div>
 
-              <Link href={"/checkout"}>
+              <Link href={`/checkout/${service.id}`}>
                 <button className="w-full py-3 bg-green-600 text-white font-semibold rounded-xl shadow hover:bg-green-700 transition">
                   Continue to Booking
                 </button>
