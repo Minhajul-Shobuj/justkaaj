@@ -1,18 +1,53 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { Order, Order_Status } from '@prisma/client';
+
+import { Order_Status } from '@prisma/client';
 import { prisma } from '../../utils/prisma';
 import { Request } from 'express';
 
-const createOrder = async (data: Order) => {
-  const order = await prisma.order.create({
-    data,
-    include: {
-      service: true,
-      user: true,
-      provider: true,
-    },
+export const createOrder = async (data: any) => {
+  return await prisma.$transaction(async (tx) => {
+    // Step 1: Create Address first
+    const newAddress = await tx.address.create({
+      data: {
+        area_name: data.address.area_name,
+        street_address: data.address.street_address,
+        city: data.address.city,
+        state: data.address.state,
+        postal_code: data.address.postal_code,
+      },
+    });
+
+    // Step 2: Create Order linked to that address
+    const newOrder = await tx.order.create({
+      data: {
+        fullName: data.fullName,
+        phone: data.phone,
+        serviceId: data.serviceId,
+        userId: data.userId,
+        providerId: data.providerId,
+        price: data.price,
+        quantity: data.quantity,
+        scheduledDate: data.scheduledDate,
+        scheduledTime: data.scheduledTime,
+        address: {
+          connect: { address_id: newAddress.address_id }, // link the created address
+        },
+      },
+      include: {
+        service: true,
+        user: true,
+        provider: true,
+        address: true,
+      },
+    });
+
+    // Step 3: Return combined result
+    return {
+      success: true,
+      message: 'Order created successfully',
+      data: newOrder,
+    };
   });
-  return order;
 };
 
 const updateOrderStatus = async (id: string, status: Order_Status) => {

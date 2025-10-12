@@ -166,7 +166,7 @@ model Order {
   price       Float
   quantity    Int? 
 
-  scheduledDate DateTime
+  scheduledDate String
   scheduledTime String
 
   createdAt   DateTime @default(now())
