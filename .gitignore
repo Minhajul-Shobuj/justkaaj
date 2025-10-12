@@ -22,8 +22,8 @@ Thumbs.db
 out/
 
 # Server-specific
-Server/generated/prisma/
-Server/dist/
+generated/prisma/
+dist/
 
 # Optional: VS Code
 .vscode/
