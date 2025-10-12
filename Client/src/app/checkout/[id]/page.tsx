@@ -10,6 +10,8 @@ import { getServiceByID } from "@/service/servicesApi";
 import { TService } from "@/types/service";
 import Navbar from "@/Component/Shared/Navbar";
 import Footer from "@/Component/Shared/Footer";
+import { useUser } from "@/context/UserContext";
+import { createOrder } from "@/service/OrderApi";
 
 type CheckoutFormData = {
   fullName: string;
@@ -25,6 +27,7 @@ type CheckoutFormData = {
 };
 
 const CheckoutPage = () => {
+  const { user } = useUser();
   const router = useRouter();
   const { id } = useParams();
   const [loading, setLoading] = useState(false);
@@ -55,31 +58,42 @@ const CheckoutPage = () => {
   }, [id]);
 
   const onSubmit = async (data: CheckoutFormData) => {
-    console.log(data);
     try {
-      // if (!service) return toast.error("Service not found!");
-      // setLoading(true);
+      if (!service) return toast.error("Service not found!");
+      if (!user) return toast.error("You must be logged in!");
 
-      // const payload = {
-      //   ...data,
-      //   serviceId: service.id,
-      //   price: totalPrice,
-      // };
+      setLoading(true);
 
-      // const res = await fetch(
-      //   `${process.env.NEXT_PUBLIC_API_URL}/order/create`,
-      //   {
-      //     method: "POST",
-      //     headers: { "Content-Type": "application/json" },
-      //     body: JSON.stringify(payload),
-      //   }
-      // );
-
-      // if (!res.ok) throw new Error("Failed to place order");
-
-      toast.success("Order placed successfully!");
-      router.push("/");
+      // Construct payload based on your Prisma models
+      const payload = {
+        fullName: data.fullName,
+        phone: data.phone,
+        serviceId: service.id,
+        userId: user.id,
+        providerId: service?.providerServices[0]?.providerId,
+        price: totalPrice,
+        quantity: data.quantity || 1,
+        scheduledDate: data.scheduledDate,
+        scheduledTime: data.scheduledTime,
+        address: {
+          area_name: data.area_name,
+          street_address: data.street_address,
+          city: data.city,
+          state: data.state,
+          postal_code: Number(data.postal_code),
+        },
+      };
+      console.log(payload);
+      const res = await createOrder(payload);
+      console.log(res);
+      if (res.success) {
+        toast.success("Order placed successfully!");
+        router.push("/");
+      } else {
+        toast.error("Failed to place order");
+      }
     } catch (error: any) {
+      console.error("Order error:", error);
       toast.error(error.message || "Something went wrong");
     } finally {
       setLoading(false);

@@ -33,7 +33,7 @@ export default function AddService() {
       title: "",
       description: "",
       area: "",
-      price: "",
+      price: 0,
       parentCategory: "",
       category: [],
       availabilities: weekDays.map((day) => ({

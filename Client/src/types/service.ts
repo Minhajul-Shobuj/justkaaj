@@ -46,7 +46,7 @@ export type TService = {
   title: string;
   description: string;
   area: string;
-  price: string;
+  price: number;
   parentCategory: string;
   availabilities: TAvailability[];
   providerServices: TProviderService[];

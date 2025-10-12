@@ -26,7 +26,6 @@ const LoginForm = () => {
     try {
       setIsLoading(true);
       const res = await LoginUser(data);
-
       if (res?.success) {
         toast.success(res?.message);
         getCurrentUser();

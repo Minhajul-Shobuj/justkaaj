@@ -1,6 +1,6 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 "use server";
 
+import { TService } from "@/types/service";
 import { cookies } from "next/headers";
 
 //get all parent Category;
@@ -33,7 +33,7 @@ export const getAllServiceCategory = async () => {
   }
 };
 
-export const createService = async (serviceData: any) => {
+export const createService = async (serviceData: TService) => {
   const accessToken = (await cookies()).get("accessToken")?.value;
   if (!accessToken) {
     throw new Error("Access token is missing");
