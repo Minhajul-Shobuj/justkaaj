@@ -26,21 +26,27 @@ const LoginForm = () => {
     try {
       setIsLoading(true);
       const res = await LoginUser(data);
-      getCurrentUser();
+
       if (res?.success) {
         toast.success(res?.message);
-        if (redirect) {
-          router.push(redirect);
-        } else {
-          router.push("/");
-        }
+        getCurrentUser();
+        router.push(redirect || "/");
       } else {
-        toast.error(res?.message);
+        // Handle specific Prisma error
+        if (res?.error?.code === "P2025") {
+          toast.error("User not registered. Please sign up first.");
+        } else {
+          toast.error(res?.message || "Login failed. Please try again.");
+        }
       }
     } catch (err) {
-      console.error(err);
+      console.error("Login error:", err);
+      toast.error("Something went wrong. Please try again.");
+    } finally {
+      setIsLoading(false);
     }
   };
+
   return (
     <>
       <div className="bg-white shadow-md rounded-xl p-8 max-w-md w-full border border-gray-200">
