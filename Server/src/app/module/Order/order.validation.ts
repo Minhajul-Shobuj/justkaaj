@@ -3,7 +3,6 @@ import { z } from 'zod';
 const createOrder = z.object({
   body: z.object({
     serviceId: z.string({ required_error: 'Service ID is required' }),
-    userId: z.string({ required_error: 'User ID is required' }),
     providerId: z.string({ required_error: 'Provider ID is required' }),
     price: z.number({ required_error: 'Price is required' }),
     quantity: z.number().optional(),

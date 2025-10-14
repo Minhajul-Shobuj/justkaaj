@@ -35,6 +35,7 @@ export type TServiceProvider = {
 };
 
 type TAvailability = {
+  id: string;
   day: string;
   startTime: string;
   endTime: string;

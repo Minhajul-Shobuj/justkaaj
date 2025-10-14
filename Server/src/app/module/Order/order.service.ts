@@ -4,7 +4,12 @@ import { Order_Status } from '@prisma/client';
 import { prisma } from '../../utils/prisma';
 import { Request } from 'express';
 
-export const createOrder = async (data: any) => {
+export const createOrder = async (req: Request) => {
+  const data = req.body;
+  const userId = (req as any).user?.id;
+  await prisma.service.findUniqueOrThrow({
+    where: { id: data.serviceId },
+  });
   return await prisma.$transaction(async (tx) => {
     // Step 1: Create Address first
     const newAddress = await tx.address.create({
@@ -23,7 +28,7 @@ export const createOrder = async (data: any) => {
         fullName: data.fullName,
         phone: data.phone,
         serviceId: data.serviceId,
-        userId: data.userId,
+        userId,
         providerId: data.providerId,
         price: data.price,
         quantity: data.quantity,
