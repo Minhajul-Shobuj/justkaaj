@@ -10,6 +10,7 @@ import { useEffect, useState } from "react";
 
 export default function Navbar() {
   const { user, setIsLoading } = useUser();
+  const [isBusinessDropdownOpen, setIsBusinessDropdownOpen] = useState(false);
   const [profileData, setProfileData] = useState<TUser | null>(null);
   const pathname = usePathname();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -155,6 +156,61 @@ export default function Navbar() {
               </div>
             )}
           </div>
+          <div>
+            {user?.role === "SERVICE_PROVIDER" && (
+              <div className="relative">
+                <button
+                  onClick={() =>
+                    setIsBusinessDropdownOpen(!isBusinessDropdownOpen)
+                  }
+                  className="flex items-center space-x-1 text-gray-700 hover:text-green-500 text-sm font-medium transition-colors"
+                >
+                  <span>My Business</span>
+                  <svg
+                    className={`w-4 h-4 transition-transform ${
+                      isBusinessDropdownOpen ? "rotate-180" : ""
+                    }`}
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M19 9l-7 7-7-7"
+                    />
+                  </svg>
+                </button>
+
+                {isBusinessDropdownOpen && (
+                  <div className="absolute left-0 mt-2 w-48 sm:w-56 bg-white border border-gray-200 rounded-md shadow-lg py-1 z-50">
+                    <Link
+                      href="/my-services"
+                      className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-green-500"
+                      onClick={() => setIsBusinessDropdownOpen(false)}
+                    >
+                      My Services
+                    </Link>
+                    <Link
+                      href="/service-create"
+                      className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-green-500"
+                      onClick={() => setIsBusinessDropdownOpen(false)}
+                    >
+                      Add Service
+                    </Link>
+                    <Link
+                      href="/service-history"
+                      className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-green-500"
+                      onClick={() => setIsBusinessDropdownOpen(false)}
+                    >
+                      Service History
+                    </Link>
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
         </div>
 
         {/* Desktop Right Side - Auth and Profile */}
@@ -207,32 +263,6 @@ export default function Navbar() {
                   >
                     Profile
                   </Link>
-                  <button
-                    className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-green-500"
-                    onClick={handleLogOut}
-                  >
-                    Logout
-                  </button>
-
-                  {user?.role === "SERVICE_PROVIDER" && (
-                    <div>
-                      <Link
-                        href="/profile/provider"
-                        className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-green-500"
-                        onClick={() => setIsProfileDropdownOpen(false)}
-                      >
-                        My Services
-                      </Link>
-                      <Link
-                        href="/service-create"
-                        className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-green-500"
-                        onClick={() => setIsProfileDropdownOpen(false)}
-                      >
-                        Create Service
-                      </Link>
-                    </div>
-                  )}
-
                   {user?.role === "ADMIN" && (
                     <Link
                       href="/admin/dashboard"
@@ -242,6 +272,12 @@ export default function Navbar() {
                       Admin Dashboard
                     </Link>
                   )}
+                  <button
+                    className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-green-500"
+                    onClick={handleLogOut}
+                  >
+                    Logout
+                  </button>
                 </div>
               )}
             </div>
@@ -383,18 +419,25 @@ export default function Navbar() {
                   {user?.role === "SERVICE_PROVIDER" && (
                     <div>
                       <Link
-                        href="/profile/provider"
+                        href="/service-create"
+                        className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-green-500"
+                        onClick={() => setIsProfileDropdownOpen(false)}
+                      >
+                        Create Service
+                      </Link>
+                      <Link
+                        href="/my-services"
                         className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-green-500"
                         onClick={() => setIsProfileDropdownOpen(false)}
                       >
                         My Services
                       </Link>
                       <Link
-                        href="/service-create"
+                        href="/service-history"
                         className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-green-500"
                         onClick={() => setIsProfileDropdownOpen(false)}
                       >
-                        Create Service
+                        Service History
                       </Link>
                     </div>
                   )}
@@ -413,34 +456,6 @@ export default function Navbar() {
                   >
                     Logout
                   </button>
-                  {user?.role === "SERVICE_PROVIDER" && (
-                    <div>
-                      <Link
-                        href="/profile/provider"
-                        className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-green-500"
-                        onClick={() => setIsProfileDropdownOpen(false)}
-                      >
-                        My Services
-                      </Link>
-                      <Link
-                        href="/service-create"
-                        className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-green-500"
-                        onClick={() => setIsProfileDropdownOpen(false)}
-                      >
-                        Create Service
-                      </Link>
-                    </div>
-                  )}
-
-                  {user?.role === "ADMIN" && (
-                    <Link
-                      href="/admin/dashboard"
-                      className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-green-500"
-                      onClick={() => setIsProfileDropdownOpen(false)}
-                    >
-                      Admin Dashboard
-                    </Link>
-                  )}
                 </div>
               )}
             </div>
