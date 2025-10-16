@@ -20,12 +20,16 @@ router.patch(
   validateRequest(OrderValidation.updateStatus),
   OrderController.updateOrderStatus
 );
-
 router.get('/user', auth(UserRole.USER), OrderController.getUserOrders);
 router.get(
   '/provider',
   auth(UserRole.SERVICE_PROVIDER),
   OrderController.getProviderOrders
+);
+router.get(
+  '/:id',
+  auth(UserRole.USER, UserRole.SERVICE_PROVIDER, UserRole.ADMIN),
+  OrderController.getOrderById
 );
 
 export const OrderRoutes = router;

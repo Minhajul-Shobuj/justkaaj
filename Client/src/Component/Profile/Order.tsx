@@ -1,96 +1,63 @@
-import React, { useState } from "react";
+"use client";
+import Loading from "@/app/loading";
+import { getAllUsersOrder, getOrderById } from "@/service/OrderApi";
+import { TOrder } from "@/types/order";
+import React, { useEffect, useState } from "react";
 
 export const Order = () => {
-  // Add interfaces and mock data for My Orders section
-  interface ChatMessage {
-    sender: "provider" | "user";
-    message: string;
-    time: string;
-  }
-  interface UserOrder {
-    id: number;
-    providerName: string;
-    providerPhone: string;
-    providerEmail: string;
-    serviceName: string;
-    date: string;
-    time: string;
-    address: string;
-    status: "pending" | "ongoing" | "completed" | "cancelled";
-    price: number;
-    description: string;
-    chat: ChatMessage[];
-  }
-
-  const mockUserOrders: UserOrder[] = [
-    {
-      id: 1,
-      providerName: "CleanPro Services",
-      providerPhone: "+880 1712-111222",
-      providerEmail: "contact@cleanpro.com",
-      serviceName: "Home Cleaning",
-      date: "2024-01-15",
-      time: "10:00 AM",
-      address: "House #123, Road #5, Dhanmondi, Dhaka",
-      status: "ongoing",
-      price: 1500,
-      description: "Full house cleaning including kitchen and bathrooms",
-      chat: [
-        {
-          sender: "provider",
-          message: "I'll be there in 15 minutes",
-          time: "09:32 AM",
-        },
-        { sender: "user", message: "Thank you!", time: "09:33 AM" },
-      ],
-    },
-    {
-      id: 2,
-      providerName: "CarCare Dhaka",
-      providerPhone: "+880 1812-333444",
-      providerEmail: "info@carcare.com",
-      serviceName: "Car Wash",
-      date: "2024-01-14",
-      time: "2:00 PM",
-      address: "Parking Lot, Bashundhara City, Dhaka",
-      status: "completed",
-      price: 800,
-      description: "Exterior and interior car cleaning",
-      chat: [
-        {
-          sender: "provider",
-          message: "Service completed successfully",
-          time: "3:30 PM",
-        },
-        { sender: "user", message: "Great job!", time: "3:31 PM" },
-      ],
-    },
-    {
-      id: 3,
-      providerName: "PlumbRight",
-      providerPhone: "+880 1912-555666",
-      providerEmail: "support@plumbright.com",
-      serviceName: "Plumbing",
-      date: "2024-01-16",
-      time: "11:00 AM",
-      address: "Apartment #5B, Gulshan-2, Dhaka",
-      status: "pending",
-      price: 2000,
-      description: "Fix leaking kitchen faucet",
-      chat: [],
-    },
-  ];
-
-  // Add state for My Orders section
-  const [selectedOrder, setSelectedOrder] = useState<UserOrder | null>(null);
+  const [selectedOrder, setSelectedOrder] = useState<TOrder | null>(null);
   const [showOrderDetails, setShowOrderDetails] = useState(false);
-  const [newMessage, setNewMessage] = useState("");
+  const [orders, setOrders] = useState<TOrder[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const fetchOrders = async () => {
+      try {
+        const res = await getAllUsersOrder();
+        setOrders(res?.data || []);
+      } catch (err) {
+        console.error("Error fetching orders:", err);
+        setError("Failed to load orders.");
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchOrders();
+  }, []);
+  //order details
+  const SelectOrder = async (id: string) => {
+    try {
+      const res = await getOrderById(id);
+      setSelectedOrder(res?.data);
+    } catch (err) {
+      setError("Failed to load order details.");
+      console.error("Error fetching order details:", err);
+    } finally {
+      setLoading(false);
+    }
+  };
+  console.log(selectedOrder);
+
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center min-h-screen">
+        <Loading />
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="text-center text-red-500 py-10 text-lg">{error}</div>
+    );
+  }
   return (
     <>
       <div>
         <h2 className="text-xl font-semibold text-gray-900 mb-6">My Orders</h2>
         <div className="grid gap-4">
-          {mockUserOrders.map((order: UserOrder) => (
+          {orders.map((order: TOrder) => (
             <div
               key={order.id}
               className="bg-white border border-green-100 rounded-lg p-4 hover:shadow-md transition-shadow"
@@ -98,14 +65,19 @@ export const Order = () => {
               <div className="flex justify-between items-start mb-4">
                 <div>
                   <h3 className="text-lg font-semibold text-gray-900">
-                    {order.serviceName}
+                    {order?.service?.title}
                   </h3>
                   <p className="text-gray-600">
-                    Provider: {order.providerName}
+                    Provider: {order.provider.fullName}
                   </p>
                   <p className="text-gray-600">
-                    {order.date} at {order.time}
+                    {new Date(order.createdAt).toLocaleDateString("en-GB")} at{" "}
+                    {new Date(order.createdAt).toLocaleTimeString("en-US", {
+                      hour: "2-digit",
+                      minute: "2-digit",
+                    })}
                   </p>
+
                   <p className="text-green-600 font-medium">৳{order.price}</p>
                 </div>
                 <div className="flex items-center space-x-2">
@@ -119,8 +91,8 @@ export const Order = () => {
                   </span>
                   <button
                     onClick={() => {
-                      setSelectedOrder(order);
                       setShowOrderDetails(true);
+                      SelectOrder(order.id);
                     }}
                     className="text-green-600 hover:text-green-700 text-sm font-medium"
                   >
@@ -129,7 +101,7 @@ export const Order = () => {
                   {order.status !== "completed" &&
                     order.status !== "cancelled" && (
                       <button
-                        onClick={() => handleCancelOrder(order.id)}
+                        onClick={() => handleCancelOrder(order.price)}
                         className="text-red-500 hover:text-red-700 text-xs font-bold border border-red-200 rounded px-2 py-1 ml-2"
                       >
                         Cancel
@@ -137,54 +109,6 @@ export const Order = () => {
                     )}
                 </div>
               </div>
-              {order.status === "ongoing" && (
-                <div className="border-t border-green-100 pt-4">
-                  {/* Chat Section */}
-                  <div className="bg-gray-50 rounded-lg p-3">
-                    <div className="text-sm font-medium text-gray-900 mb-2">
-                      Chat with {order.providerName}
-                    </div>
-                    <div className="max-h-32 overflow-y-auto space-y-2 mb-3">
-                      {order.chat.map((msg: ChatMessage, idx: number) => (
-                        <div
-                          key={idx}
-                          className={`text-sm ${
-                            msg.sender === "user" ? "text-right" : "text-left"
-                          }`}
-                        >
-                          <div
-                            className={`inline-block px-3 py-1 rounded-lg ${
-                              msg.sender === "user"
-                                ? "bg-green-500 text-white"
-                                : "bg-gray-200 text-gray-900"
-                            }`}
-                          >
-                            {msg.message}
-                          </div>
-                          <div className="text-xs text-gray-500 mt-1">
-                            {msg.time}
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                    <div className="flex space-x-2">
-                      <input
-                        type="text"
-                        value={newMessage}
-                        onChange={(e) => setNewMessage(e.target.value)}
-                        placeholder="Type your message..."
-                        className="flex-1 px-3 py-1 border border-gray-300 rounded text-sm text-gray-900"
-                      />
-                      <button
-                        onClick={() => sendMessage(order.id)}
-                        className="bg-green-500 hover:bg-green-600 text-white px-3 py-1 rounded text-sm"
-                      >
-                        Send
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              )}
             </div>
           ))}
         </div>
@@ -208,39 +132,43 @@ export const Order = () => {
                   <label className="block text-sm font-medium text-gray-700">
                     Provider Name
                   </label>
-                  <p className="text-gray-900">{selectedOrder.providerName}</p>
+                  <p className="text-gray-900">
+                    {selectedOrder?.provider?.fullName}
+                  </p>
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700">
                     Phone Number
                   </label>
-                  <p className="text-gray-900">{selectedOrder.providerPhone}</p>
+                  <p className="text-gray-900">
+                    {selectedOrder?.provider?.user?.phone}
+                  </p>
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700">
                     Email
                   </label>
-                  <p className="text-gray-900">{selectedOrder.providerEmail}</p>
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700">
-                    Service Address
-                  </label>
-                  <p className="text-gray-900">{selectedOrder.address}</p>
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700">
-                    Service Details
-                  </label>
-                  <p className="text-gray-900">{selectedOrder.description}</p>
+                  <p className="text-gray-900">
+                    {selectedOrder?.provider?.email}
+                  </p>
                 </div>
                 <div className="flex justify-between">
                   <div>
                     <label className="block text-sm font-medium text-gray-700">
-                      Date & Time
+                      Booked At (Date & Time)
                     </label>
                     <p className="text-gray-900">
-                      {selectedOrder.date} at {selectedOrder.time}
+                      {new Date(selectedOrder?.createdAt).toLocaleDateString(
+                        "en-GB"
+                      )}{" "}
+                      at{" "}
+                      {new Date(selectedOrder?.createdAt).toLocaleTimeString(
+                        "en-US",
+                        {
+                          hour: "2-digit",
+                          minute: "2-digit",
+                        }
+                      )}
                     </p>
                   </div>
                   <div>
@@ -251,6 +179,14 @@ export const Order = () => {
                       ৳{selectedOrder.price}
                     </p>
                   </div>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700">
+                    Service Details
+                  </label>
+                  <p className="text-gray-900">
+                    {selectedOrder?.service?.description}
+                  </p>
                 </div>
               </div>
               <div className="mt-6 flex justify-end">
@@ -285,7 +221,4 @@ function getStatusColor(status: string) {
 }
 function handleCancelOrder(orderId: number) {
   alert(`Order ${orderId} cancelled.`);
-}
-function sendMessage(orderId: number) {
-  alert(`Message sent to provider for order ${orderId}.`);
 }

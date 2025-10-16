@@ -1,8 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { PrismaClient } from '@prisma/client';
 import { Request } from 'express';
+import { prisma } from '../../utils/prisma';
 
-const prisma = new PrismaClient();
 const createServiceIntodb = async (req: Request) => {
   const { category, availabilities, ...serviceData } = req.body;
   const user = (req as any).user;

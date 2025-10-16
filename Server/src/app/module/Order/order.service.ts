@@ -97,9 +97,26 @@ const getProviderOrders = async (req: Request) => {
   return orders;
 };
 
+const getOrderById = async (id: string) => {
+  const result = await prisma.order.findUniqueOrThrow({
+    where: { id },
+    include: {
+      service: true,
+      user: true,
+      provider: {
+        include: {
+          user: true,
+        },
+      },
+    },
+  });
+  return result;
+};
+
 export const OrderService = {
   createOrder,
   updateOrderStatus,
   getUserOrders,
   getProviderOrders,
+  getOrderById,
 };
