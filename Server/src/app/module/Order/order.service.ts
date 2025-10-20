@@ -103,6 +103,7 @@ const getOrderById = async (id: string) => {
     include: {
       service: true,
       user: true,
+      address: true,
       provider: {
         include: {
           user: true,

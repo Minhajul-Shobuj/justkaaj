@@ -4,7 +4,6 @@ import Navbar from "@/Component/Shared/Navbar";
 import Footer from "@/Component/Shared/Footer";
 import React from "react";
 import ProfileForm from "@/Component/Profile/provider/ProfileForm";
-import ServiceForm from "@/Component/Profile/provider/ServiceForm";
 
 const mockServiceRequests = [
   {
@@ -107,30 +106,6 @@ export default function ProviderProfile() {
     avatar: "🏢",
   };
 
-  const managedServices = [
-    {
-      id: 1,
-      service: "Home Cleaning",
-      status: "Active",
-      bookings: 120,
-      rating: 4.8,
-    },
-    {
-      id: 2,
-      service: "Office Cleaning",
-      status: "Active",
-      bookings: 80,
-      rating: 4.7,
-    },
-    {
-      id: 3,
-      service: "Event Services",
-      status: "Inactive",
-      bookings: 15,
-      rating: 4.5,
-    },
-  ];
-
   // List of editable fields for completion calculation
   const editableFields = [
     "full_name",
@@ -207,7 +182,6 @@ export default function ProviderProfile() {
               <nav className="flex overflow-x-auto px-4 sm:px-6">
                 {[
                   { id: "profile", name: "Profile" },
-                  { id: "services", name: "Add Services" },
                   { id: "manage", name: "Manage Services" },
                 ].map((tab) => (
                   <button
@@ -228,7 +202,6 @@ export default function ProviderProfile() {
             {/* Tab Content */}
             <div className="p-6">
               {activeTab === "profile" && <ProfileForm />}
-              {activeTab === "services" && <ServiceForm />}
               {activeTab === "manage" && (
                 <div className="space-y-6">
                   <div className="flex justify-between items-center">

@@ -5,7 +5,6 @@ import Footer from "@/Component/Shared/Footer";
 import Header from "@/Component/Profile/Header";
 import OverView from "@/Component/Profile/OverView";
 import Profile from "@/Component/Profile/Profile";
-import Services from "@/Component/Profile/Services";
 import { Order } from "@/Component/Profile/Order";
 import Setting from "@/Component/Profile/Setting";
 
@@ -81,8 +80,6 @@ export default function UserProfile() {
               {activeTab === "overview" && <OverView />}
               {/* profiel tab */}
               {activeTab === "profile" && <Profile />}
-              {/* service tab */}
-              {activeTab === "services" && <Services />}
               {/* order tab */}
               {activeTab === "orders" && <Order />}
               {/* setting tab */}

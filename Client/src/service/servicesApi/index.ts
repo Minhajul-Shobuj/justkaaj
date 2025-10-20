@@ -78,6 +78,37 @@ export const getAllservices = async () => {
     throw new Error("Failed to fetch services");
   }
 };
+
+export const getMyservices = async () => {
+  const accessToken = (await cookies()).get("accessToken")?.value;
+  if (!accessToken) {
+    throw new Error("Access token is missing");
+  }
+  try {
+    const res = await fetch(
+      `${process.env.NEXT_PUBLIC_API_URL}/service/my-services`,
+      {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: accessToken,
+        },
+        cache: "no-store",
+      }
+    );
+
+    if (!res.ok) {
+      throw new Error(`Failed to fetch: ${res.status}`);
+    }
+
+    const result = await res.json();
+    return result;
+  } catch (error) {
+    console.error("Error fetching services:", error);
+    throw new Error("Failed to fetch services");
+  }
+};
+
 export const getServiceByID = async (serviceId: string) => {
   try {
     const res = await fetch(

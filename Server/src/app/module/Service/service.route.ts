@@ -14,6 +14,11 @@ router.post(
   ServiceController.createService
 );
 router.get('/', ServiceController.getAllServices);
+router.get(
+  '/my-services',
+  auth(UserRole.SERVICE_PROVIDER),
+  ServiceController.getMyServices
+);
 
 router.get('/:id', ServiceController.getServiceById);
 

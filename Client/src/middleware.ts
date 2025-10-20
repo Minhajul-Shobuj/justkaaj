@@ -8,7 +8,7 @@ const roleBasedPrivateRoutes = {
   USER: [/^\/user/, /^\/profile\/user/, /^\/checkout/],
   SERVICE_PROVIDER: [
     /^\/service_provider/,
-    /^\/profile\/provider/,
+    /^\/profile\/service_provider/,
     /^\/my-services/,
     /^\/service-history/,
     /^\/service-create/,

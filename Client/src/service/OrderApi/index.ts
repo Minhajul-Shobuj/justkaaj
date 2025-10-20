@@ -79,3 +79,34 @@ export const getOrderById = async (id: string) => {
     throw new Error("Failed to fetch order");
   }
 };
+
+export const getProviderServicesHistory = async () => {
+  const accessToken = (await cookies()).get("accessToken")?.value;
+  if (!accessToken) {
+    throw new Error("Access token is missing");
+  }
+
+  try {
+    const res = await fetch(
+      `${process.env.NEXT_PUBLIC_API_URL}/order/provider`,
+      {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: accessToken,
+        },
+        cache: "no-store",
+      }
+    );
+
+    if (!res.ok) {
+      throw new Error(`Failed to fetch: ${res.status}`);
+    }
+
+    const result = await res.json();
+    return result;
+  } catch (error) {
+    console.error("Error fetching orders:", error);
+    throw new Error("Failed to fetch orders");
+  }
+};

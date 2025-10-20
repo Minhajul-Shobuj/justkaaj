@@ -70,6 +70,36 @@ const getAllServicesFromDb = async () => {
   return result;
 };
 
+const getMyServices = async (req: Request) => {
+  const providerEmail = (req as any).user.email;
+  const provider = await prisma.service_Provider.findUniqueOrThrow({
+    where: { email: providerEmail },
+  });
+  const result = await prisma.service.findMany({
+    where: {
+      providerServices: {
+        some: {
+          providerId: provider.id,
+        },
+      },
+    },
+    include: {
+      category: true,
+      providerServices: {
+        include: {
+          service_provider: {
+            include: { user: true },
+          },
+        },
+      },
+    },
+    orderBy: {
+      createdAt: 'desc',
+    },
+  });
+  return result;
+};
+
 const getServiceByIdFromDb = async (serviceId: string) => {
   const result = await prisma.service.findUnique({
     where: { id: serviceId },
@@ -96,4 +126,5 @@ export const ServiceOfService = {
   createServiceIntodb,
   getAllServicesFromDb,
   getServiceByIdFromDb,
+  getMyServices,
 };

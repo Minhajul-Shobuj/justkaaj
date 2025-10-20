@@ -1,4 +1,5 @@
 import { TService, TServiceProvider } from "./service";
+import { TAddress } from "./user";
 
 export type TOrder = {
   id: string;
@@ -6,6 +7,7 @@ export type TOrder = {
   userId: string;
   fullName: string;
   phone: string;
+  address: TAddress;
   providerId: string;
   status: "PENDING" | "CONFIRMED" | "CANCELLED" | "COMPLETED" | string;
   price: number;

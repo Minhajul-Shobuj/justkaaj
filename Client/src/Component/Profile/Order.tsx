@@ -26,7 +26,7 @@ export const Order = () => {
     fetchOrders();
   }, []);
   //order details
-  const SelectOrder = async (id: string) => {
+  const selectOrder = async (id: string) => {
     try {
       const res = await getOrderById(id);
       setSelectedOrder(res?.data);
@@ -37,7 +37,6 @@ export const Order = () => {
       setLoading(false);
     }
   };
-  console.log(selectedOrder);
 
   if (loading) {
     return (
@@ -92,7 +91,7 @@ export const Order = () => {
                   <button
                     onClick={() => {
                       setShowOrderDetails(true);
-                      SelectOrder(order.id);
+                      selectOrder(order.id);
                     }}
                     className="text-green-600 hover:text-green-700 text-sm font-medium"
                   >
