@@ -14,7 +14,6 @@ const createOrder = z.object({
 const updateStatus = z.object({
   body: z.object({
     status: z.enum([
-      'PENDING',
       'CONFIRMED',
       'IN_PROGRESS',
       'COMPLETED',

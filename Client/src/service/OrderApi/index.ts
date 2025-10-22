@@ -110,3 +110,30 @@ export const getProviderServicesHistory = async () => {
     throw new Error("Failed to fetch orders");
   }
 };
+
+export const updateOrderStatus = async (id: string, status: string) => {
+  const accessToken = (await cookies()).get("accessToken")?.value;
+  if (!accessToken) {
+    throw new Error("Access token is missing");
+  }
+
+  try {
+    const res = await fetch(
+      `${process.env.NEXT_PUBLIC_API_URL}/order/update-status/${id}`,
+      {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: accessToken,
+        },
+        body: JSON.stringify({ status }),
+      }
+    );
+
+    const result = await res.json();
+    return result;
+  } catch (error) {
+    console.error("Error updating Order status:", error);
+    throw new Error("Order status updating failed");
+  }
+};

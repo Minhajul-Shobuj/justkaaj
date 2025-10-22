@@ -1,6 +1,10 @@
 "use client";
 import React, { useEffect, useState } from "react";
-import { getOrderById, getProviderServicesHistory } from "@/service/OrderApi";
+import {
+  getOrderById,
+  getProviderServicesHistory,
+  updateOrderStatus,
+} from "@/service/OrderApi";
 import Loading from "@/app/loading";
 import Navbar from "@/Component/Shared/Navbar";
 import Footer from "@/Component/Shared/Footer";
@@ -10,6 +14,14 @@ const ServiceHistory = () => {
   const [orders, setOrders] = useState<TOrder[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedOrder, setSelectedOrder] = useState<TOrder | null>(null);
+  const [showChat, setShowChat] = useState(false);
+  const [messages, setMessages] = useState<{ sender: string; text: string }[]>(
+    []
+  );
+  const [newMessage, setNewMessage] = useState("");
+  const [newStatus, setNewStatus] = useState("");
+  const [updating, setUpdating] = useState(false);
+  const [successMsg, setSuccessMsg] = useState("");
 
   useEffect(() => {
     async function fetchOrders() {
@@ -29,6 +41,7 @@ const ServiceHistory = () => {
     try {
       const res = await getOrderById(id);
       setSelectedOrder(res?.data);
+      setNewStatus(res?.data?.status || "");
     } catch (err) {
       console.error("Error fetching order details:", err);
     } finally {
@@ -36,53 +49,74 @@ const ServiceHistory = () => {
     }
   };
 
+  const handleStatusUpdate = async () => {
+    if (!selectedOrder || !newStatus) return;
+    setUpdating(true);
+    setSuccessMsg("");
+    try {
+      await updateOrderStatus(selectedOrder.id, newStatus);
+      setOrders((prev) =>
+        prev.map((o) =>
+          o.id === selectedOrder.id ? { ...o, status: newStatus } : o
+        )
+      );
+      setSelectedOrder({ ...selectedOrder, status: newStatus });
+      setSuccessMsg("✅ Order status updated successfully!");
+    } catch (err) {
+      console.error("Error updating status:", err);
+      setSuccessMsg("❌ Failed to update status.");
+    } finally {
+      setUpdating(false);
+      setTimeout(() => setSuccessMsg(""), 3000);
+    }
+  };
+
+  const handleSendMessage = () => {
+    if (!newMessage.trim()) return;
+    setMessages((prev) => [...prev, { sender: "provider", text: newMessage }]);
+    setNewMessage("");
+  };
+
   if (loading) return <Loading />;
 
   if (!orders.length)
     return (
-      <div className="text-center py-20 text-gray-500">
+      <div className="text-center py-20 text-black">
         No service history found 😔
       </div>
     );
+
   return (
     <>
       <Navbar />
-      <div className="max-w-6xl mx-auto px-4 py-10">
-        <h1 className="text-2xl font-bold text-gray-800 mb-6">
+      <div className="max-w-6xl mx-auto px-4 py-10 text-black">
+        <h1 className="text-2xl font-bold mb-6 flex items-center gap-2">
           🧾 My Service History
         </h1>
 
-        <div className="space-y-6">
+        <div className="grid gap-6">
           {orders.map((order) => (
             <div
               key={order.id}
-              className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 border rounded-2xl shadow-sm p-5 bg-white hover:shadow-md transition-shadow"
+              className="border border-gray-100 rounded-2xl shadow-sm hover:shadow-lg transition-all p-6 bg-white flex flex-col md:flex-row justify-between items-start md:items-center"
             >
-              {/* Left side: Service info */}
-              <div className="flex items-start gap-4 w-full md:w-2/3">
-                <div>
-                  <h2 className="font-semibold text-lg text-gray-800">
-                    {order.service?.title}
-                  </h2>
-                  <p className="text-gray-600 text-sm mt-1 line-clamp-2">
-                    {order.service?.description}
-                  </p>
-                </div>
+              <div className="w-full md:w-2/3">
+                <h2 className="font-semibold text-lg">
+                  {order.service?.title}
+                </h2>
+                <p className="text-sm mt-2 line-clamp-2">
+                  {order.service?.description}
+                </p>
               </div>
 
-              {/* Right side: Order info */}
-              <div className="flex flex-col md:items-end gap-2 text-sm text-gray-700 w-full md:w-1/3">
+              <div className="w-full md:w-1/3 flex flex-col items-start md:items-end gap-2 text-sm mt-4 md:mt-0">
                 <div>
-                  <span className="font-medium">Date:</span>{" "}
-                  {new Date(order.scheduledDate).toLocaleDateString()}
-                </div>
-                <div>
-                  <span className="font-medium">Time:</span>{" "}
+                  <span className="font-medium">📅 </span>
+                  {new Date(order.scheduledDate).toLocaleDateString()} |{" "}
                   {order.scheduledTime}
                 </div>
                 <div>
-                  <span className="font-medium">Quantity:</span>{" "}
-                  {order.quantity}
+                  <span className="font-medium">Qty:</span> {order.quantity}
                 </div>
                 <div>
                   <span className="font-medium">Total:</span>{" "}
@@ -90,26 +124,39 @@ const ServiceHistory = () => {
                     ৳{order.price * order.quantity}
                   </span>
                 </div>
-
-                {/* Status Badge */}
                 <span
                   className={`px-3 py-1 rounded-full text-xs font-semibold mt-1 ${
                     order.status === "PENDING"
                       ? "bg-yellow-100 text-yellow-700"
                       : order.status === "COMPLETED"
                       ? "bg-green-100 text-green-700"
+                      : order.status === "IN_PROGRESS"
+                      ? "bg-blue-100 text-blue-700"
                       : "bg-red-100 text-red-700"
                   }`}
                 >
                   {order.status}
                 </span>
 
-                <button
-                  onClick={() => selectOrder(order?.id)}
-                  className="mt-2 bg-green-600 text-white px-4 py-2 rounded-xl hover:bg-green-700 text-sm transition"
-                >
-                  View Details
-                </button>
+                <div className="flex gap-2 mt-2">
+                  <button
+                    onClick={() => selectOrder(order?.id)}
+                    className="bg-blue-600 text-white px-4 py-2 rounded-xl hover:bg-blue-700 text-sm transition"
+                  >
+                    View Details
+                  </button>
+
+                  <button
+                    onClick={() => {
+                      setSelectedOrder(order);
+                      setShowChat(true);
+                      setMessages([]);
+                    }}
+                    className="bg-green-600 text-white px-4 py-2 rounded-xl hover:bg-green-700 text-sm transition"
+                  >
+                    Chat
+                  </button>
+                </div>
               </div>
             </div>
           ))}
@@ -118,14 +165,14 @@ const ServiceHistory = () => {
 
       <Footer />
 
-      {/* Modal */}
-      {selectedOrder && (
+      {/* ====== ORDER DETAILS MODAL ====== */}
+      {selectedOrder && !showChat && (
         <div
           className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40"
           onClick={() => setSelectedOrder(null)}
         >
           <div
-            className="bg-white rounded-2xl w-full max-w-lg mx-4 p-6 relative shadow-lg"
+            className="bg-white rounded-2xl w-full max-w-lg mx-4 p-6 relative shadow-xl text-black"
             onClick={(e) => e.stopPropagation()}
           >
             <button
@@ -135,40 +182,33 @@ const ServiceHistory = () => {
               ✖
             </button>
 
-            <div className="flex items-center gap-4 mb-4">
-              <div>
-                <h2 className="text-xl font-semibold text-gray-800">
-                  {selectedOrder.service?.title}
-                </h2>
-              </div>
-            </div>
+            <h2 className="text-xl font-semibold mb-4">
+              {selectedOrder.service?.title}
+            </h2>
 
-            <div className="space-y-2 text-sm text-gray-700">
+            <div className="space-y-2 text-sm">
               <p>
                 <span className="font-medium">Description:</span>{" "}
                 {selectedOrder.service?.description || "No description"}
               </p>
               <p>
-                <span className="font-medium">Customer Name:</span>{" "}
-                {selectedOrder?.fullName || "N/A"}
+                <span className="font-medium">Customer:</span>{" "}
+                {selectedOrder.fullName || "N/A"}
               </p>
               <p>
-                <span className="font-medium">Customer Phone:</span>{" "}
-                {selectedOrder?.phone || "N/A"}
+                <span className="font-medium">Phone:</span>{" "}
+                {selectedOrder.phone || "N/A"}
               </p>
               <p>
                 <span className="font-medium">Address:</span>{" "}
-                {selectedOrder?.address?.street_address},{" "}
-                {selectedOrder?.address?.area_name},{" "}
-                {selectedOrder?.address?.city}
+                {selectedOrder.address?.street_address},{" "}
+                {selectedOrder.address?.area_name},{" "}
+                {selectedOrder.address?.city}
               </p>
               <p>
-                <span className="font-medium">Scheduled Date:</span>{" "}
-                {new Date(selectedOrder.scheduledDate).toLocaleDateString()}
-              </p>
-              <p>
-                <span className="font-medium">Scheduled Time:</span>{" "}
-                {selectedOrder.scheduledTime}
+                <span className="font-medium">Date:</span>{" "}
+                {new Date(selectedOrder.scheduledDate).toLocaleDateString()} (
+                {selectedOrder.scheduledTime})
               </p>
               <p>
                 <span className="font-medium">Quantity:</span>{" "}
@@ -180,28 +220,151 @@ const ServiceHistory = () => {
                   ৳{selectedOrder.price * selectedOrder.quantity}
                 </span>
               </p>
-              <p>
-                <span className="font-medium">Status:</span>{" "}
-                <span
-                  className={`px-2 py-1 rounded-full text-xs font-semibold ${
-                    selectedOrder.status === "PENDING"
-                      ? "bg-yellow-100 text-yellow-700"
-                      : selectedOrder.status === "COMPLETED"
-                      ? "bg-green-100 text-green-700"
-                      : "bg-red-100 text-red-700"
-                  }`}
+
+              {/* ===== Update Status Section ===== */}
+              <div className="mt-4">
+                <label className="font-medium block mb-1 text-black">
+                  Update Order Status:
+                </label>
+                <select
+                  value={newStatus}
+                  onChange={(e) => setNewStatus(e.target.value)}
+                  className="border rounded-xl px-3 py-2 w-full text-black"
                 >
-                  {selectedOrder.status}
-                </span>
-              </p>
+                  <option value="">Select status</option>
+                  <option disabled>PENDING</option>
+                  <option
+                    disabled={selectedOrder?.status !== "PENDING"}
+                    value="IN_PROGRESS"
+                  >
+                    IN_PROGRESS
+                  </option>
+                  <option
+                    disabled={
+                      selectedOrder?.status !== "PENDING" &&
+                      selectedOrder?.status !== "IN_PROGRESS"
+                    }
+                    value="COMPLETED"
+                  >
+                    COMPLETED
+                  </option>
+                  <option
+                    disabled={
+                      selectedOrder?.status !== "PENDING" &&
+                      selectedOrder?.status !== "IN_PROGRESS"
+                    }
+                    value="REJECTED"
+                  >
+                    REJECTED
+                  </option>
+                </select>
+
+                <button
+                  onClick={handleStatusUpdate}
+                  disabled={updating || !newStatus}
+                  className="bg-blue-600 text-white px-4 py-2 rounded-xl hover:bg-blue-700 transition mt-3"
+                >
+                  {updating ? "Updating..." : "Update Status"}
+                </button>
+
+                {successMsg && (
+                  <p className="mt-2 text-sm text-center text-green-600 font-medium">
+                    {successMsg}
+                  </p>
+                )}
+              </div>
             </div>
 
-            <div className="mt-6 text-right">
+            <div className="mt-6 flex justify-end gap-3">
               <button
                 onClick={() => setSelectedOrder(null)}
-                className="bg-gray-200 hover:bg-gray-300 text-gray-700 px-4 py-2 rounded-xl transition"
+                className="bg-gray-200 hover:bg-gray-300 text-black px-4 py-2 rounded-xl transition"
               >
                 Close
+              </button>
+              <button
+                onClick={() => {
+                  setShowChat(true);
+                  setMessages([]);
+                }}
+                className="bg-green-600 text-white px-4 py-2 rounded-xl hover:bg-green-700 transition"
+              >
+                Chat with Customer
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ====== CHAT MODAL ====== */}
+      {showChat && selectedOrder && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40"
+          onClick={() => {
+            setShowChat(false);
+            setSelectedOrder(null);
+          }}
+        >
+          <div
+            className="bg-white rounded-2xl w-full max-w-md mx-4 p-4 relative shadow-xl flex flex-col h-[500px] text-black"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <button
+              onClick={() => {
+                setShowChat(false);
+                setSelectedOrder(null);
+              }}
+              className="absolute top-3 right-3 text-gray-500 hover:text-gray-700 text-xl"
+            >
+              ✖
+            </button>
+
+            <h2 className="text-lg font-semibold mb-2">
+              Chat with {selectedOrder.fullName || "Customer"}
+            </h2>
+
+            <div className="flex-1 overflow-y-auto border rounded-xl p-3 mb-3 space-y-2 bg-gray-50">
+              {messages.length === 0 ? (
+                <p className="text-center text-gray-400 text-sm mt-20">
+                  No messages yet 👋
+                </p>
+              ) : (
+                messages.map((msg, i) => (
+                  <div
+                    key={i}
+                    className={`flex ${
+                      msg.sender === "provider"
+                        ? "justify-end"
+                        : "justify-start"
+                    }`}
+                  >
+                    <div
+                      className={`px-3 py-2 rounded-xl max-w-[70%] text-sm ${
+                        msg.sender === "provider"
+                          ? "bg-green-600 text-white"
+                          : "bg-gray-200 text-black"
+                      }`}
+                    >
+                      {msg.text}
+                    </div>
+                  </div>
+                ))
+              )}
+            </div>
+
+            <div className="flex gap-2">
+              <input
+                type="text"
+                placeholder="Type a message..."
+                value={newMessage}
+                onChange={(e) => setNewMessage(e.target.value)}
+                className="flex-1 border rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-500 text-black"
+              />
+              <button
+                onClick={handleSendMessage}
+                className="bg-green-600 text-white px-4 py-2 rounded-xl hover:bg-green-700 transition"
+              >
+                Send
               </button>
             </div>
           </div>
