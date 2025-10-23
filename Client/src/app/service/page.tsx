@@ -45,14 +45,6 @@ const ServicePage = () => {
     );
   }
 
-  if (services.length === 0) {
-    return (
-      <div className="text-center text-gray-600 py-10 text-lg">
-        No services found.
-      </div>
-    );
-  }
-
   return (
     <>
       <Navbar />
@@ -89,7 +81,12 @@ const ServicePage = () => {
               </button>
             </div>
           </form>
-
+          if (services.length === 0){" "}
+          {
+            <div className="text-center text-gray-600 py-10 text-lg">
+              No services found.
+            </div>
+          }
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {services.map((service) => (
               <ServiceCard key={service.id} service={service} />

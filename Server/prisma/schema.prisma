@@ -33,7 +33,7 @@ password String
 fullName String
 profileImage String?
 address   Address?
-phone String
+phone String @unique
 agree Boolean @default(false)
 role UserRole @default(USER)
 is_verified Boolean @default(false)
@@ -45,6 +45,8 @@ service_provider Service_Provider?
 Admin Admin?
 
 orders Order[]
+sentMessages Chat[] @relation("SentMessages")
+receivedMessages Chat[] @relation("ReceivedMessages")
 
 @@map("users")
 }
@@ -171,7 +173,24 @@ model Order {
 
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
+   @@map("orders")
 }
+
+model Chat {
+  id          String   @id @default(ulid())
+  sender      User     @relation("SentMessages", fields: [senderId], references: [user_id])
+  senderId    String
+
+  receiver    User     @relation("ReceivedMessages", fields: [receiverId], references: [user_id])
+  receiverId  String
+
+  message     String
+  isRead      Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+   @@map("chat")
+}
+
 
 
 enum UserRole{
