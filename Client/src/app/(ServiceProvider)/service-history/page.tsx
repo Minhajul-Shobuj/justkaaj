@@ -9,20 +9,22 @@ import Loading from "@/app/loading";
 import Navbar from "@/Component/Shared/Navbar";
 import Footer from "@/Component/Shared/Footer";
 import { TOrder } from "@/types/order";
+import { GetAllMessagesFromASender, SendMessage } from "@/service/chat";
 
 const ServiceHistory = () => {
   const [orders, setOrders] = useState<TOrder[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedOrder, setSelectedOrder] = useState<TOrder | null>(null);
   const [showChat, setShowChat] = useState(false);
-  const [messages, setMessages] = useState<{ sender: string; text: string }[]>(
-    []
-  );
+  const [messages, setMessages] = useState<
+    { senderId: string; receiverId: string; message: string }[]
+  >([]);
   const [newMessage, setNewMessage] = useState("");
   const [newStatus, setNewStatus] = useState("");
   const [updating, setUpdating] = useState(false);
   const [successMsg, setSuccessMsg] = useState("");
 
+  // 🟢 Fetch all service orders
   useEffect(() => {
     async function fetchOrders() {
       try {
@@ -37,6 +39,7 @@ const ServiceHistory = () => {
     fetchOrders();
   }, []);
 
+  // 🟢 Select and open order details
   const selectOrder = async (id: string) => {
     try {
       const res = await getOrderById(id);
@@ -49,6 +52,40 @@ const ServiceHistory = () => {
     }
   };
 
+  // 🟢 Fetch messages when chat modal opens
+  // Auto-refresh chat messages every 5 seconds
+  useEffect(() => {
+    if (!showChat || !selectedOrder) return;
+
+    const fetchMessages = async () => {
+      try {
+        const res = await GetAllMessagesFromASender(selectedOrder?.userId);
+        setMessages(res?.data || []);
+      } catch (err) {
+        console.error("Error loading chat messages:", err);
+      }
+    };
+
+    fetchMessages(); // initial fetch
+
+    const interval = setInterval(fetchMessages, 5000); // refresh every 5s
+    return () => clearInterval(interval); // cleanup
+  }, [showChat, selectedOrder]);
+
+  // 🟢 Send a message to backend
+  const handleSendMessage = async () => {
+    if (!newMessage.trim() || !selectedOrder) return;
+    try {
+      await SendMessage(newMessage, selectedOrder.userId);
+      setNewMessage("");
+      const res = await GetAllMessagesFromASender(selectedOrder.userId);
+      setMessages(res?.data || []);
+    } catch (err) {
+      console.error("Error sending message:", err);
+    }
+  };
+
+  // 🟢 Update order status
   const handleStatusUpdate = async () => {
     if (!selectedOrder || !newStatus) return;
     setUpdating(true);
@@ -69,12 +106,6 @@ const ServiceHistory = () => {
       setUpdating(false);
       setTimeout(() => setSuccessMsg(""), 3000);
     }
-  };
-
-  const handleSendMessage = () => {
-    if (!newMessage.trim()) return;
-    setMessages((prev) => [...prev, { sender: "provider", text: newMessage }]);
-    setNewMessage("");
   };
 
   if (loading) return <Loading />;
@@ -333,19 +364,19 @@ const ServiceHistory = () => {
                   <div
                     key={i}
                     className={`flex ${
-                      msg.sender === "provider"
-                        ? "justify-end"
-                        : "justify-start"
+                      msg.senderId === selectedOrder.userId
+                        ? "justify-start"
+                        : "justify-end"
                     }`}
                   >
                     <div
                       className={`px-3 py-2 rounded-xl max-w-[70%] text-sm ${
-                        msg.sender === "provider"
-                          ? "bg-green-600 text-white"
-                          : "bg-gray-200 text-black"
+                        msg.senderId === selectedOrder.userId
+                          ? "bg-gray-200 text-black"
+                          : "bg-green-600 text-white"
                       }`}
                     >
-                      {msg.text}
+                      {msg.message}
                     </div>
                   </div>
                 ))

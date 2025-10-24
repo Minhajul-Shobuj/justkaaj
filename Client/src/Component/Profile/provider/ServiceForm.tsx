@@ -68,6 +68,7 @@ export default function AddService() {
         })),
       };
       const res = await createService(cleaned);
+      console.log(res);
       if (res?.success) {
         toast.success(res?.message);
       } else {
