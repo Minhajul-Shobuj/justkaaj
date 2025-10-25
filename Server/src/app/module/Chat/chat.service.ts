@@ -19,9 +19,10 @@ const sendMessage = async (req: Request) => {
 };
 
 const getAllMessagesFromASender = async (req: Request) => {
-  const senderId = (req as any).user.id;
+  const senderId = (req as any).user.id; // Current logged-in user
   const { receiverId } = req.params;
 
+  // 1. Fetch all messages between the two users
   const messages = await prisma.chat.findMany({
     where: {
       OR: [
@@ -30,6 +31,18 @@ const getAllMessagesFromASender = async (req: Request) => {
       ],
     },
     orderBy: { createdAt: 'asc' },
+  });
+
+  // 2. Update unread messages sent TO the current user (senderId) from receiverId
+  await prisma.chat.updateMany({
+    where: {
+      senderId: receiverId,
+      receiverId: senderId,
+      isRead: false,
+    },
+    data: {
+      isRead: true,
+    },
   });
 
   return messages;
@@ -63,8 +76,20 @@ const getAllUserIChatWith = async (req: Request) => {
   return uniqueUsers;
 };
 
+const getUnreadMessagesCount = async (req: Request) => {
+  const userId = (req as any).user.id;
+  const unreadCount = await prisma.chat.count({
+    where: {
+      receiverId: userId,
+      isRead: false,
+    },
+  });
+  return unreadCount;
+};
+
 export const ChatService = {
   sendMessage,
   getAllMessagesFromASender,
   getAllUserIChatWith,
+  getUnreadMessagesCount,
 };

@@ -26,4 +26,10 @@ router.get(
   ChatController.getAllUserIChatWith
 );
 
+router.get(
+  '/unread-count',
+  auth(UserRole.SERVICE_PROVIDER, UserRole.ADMIN, UserRole.USER),
+  ChatController.getUnreadMessagesCount
+);
+
 export const ChatRoute = router;

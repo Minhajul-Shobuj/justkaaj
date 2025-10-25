@@ -31,8 +31,19 @@ const getAllUserIChatWith = catchAsync(async (req, res) => {
   });
 });
 
+const getUnreadMessagesCount = catchAsync(async (req, res) => {
+  const result = await ChatService.getUnreadMessagesCount(req);
+  sendResponse(res, {
+    statusCode: status.OK,
+    success: true,
+    message: 'All unread messages count retrieved successfully',
+    data: result,
+  });
+});
+
 export const ChatController = {
   sendMessage,
   getAllMessagesFromASender,
   getAllUserIChatWith,
+  getUnreadMessagesCount,
 };

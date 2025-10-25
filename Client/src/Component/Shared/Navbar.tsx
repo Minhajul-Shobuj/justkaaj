@@ -9,6 +9,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { MessageSquare } from "lucide-react";
 import NotificationBell from "./NotificationBell";
+import { getUnreadMessagesCount } from "@/service/chat";
 
 export default function Navbar() {
   const { user, setIsLoading } = useUser();
@@ -18,6 +19,7 @@ export default function Navbar() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isProfileDropdownOpen, setIsProfileDropdownOpen] = useState(false);
   const [isLegalDropdownOpen, setIsLegalDropdownOpen] = useState(false);
+  const [unreadCount, setUnreadCount] = useState(0);
   const router = useRouter();
 
   useEffect(() => {
@@ -27,6 +29,8 @@ export default function Navbar() {
       try {
         const res = await myProfile();
         setProfileData(res.data);
+        const unread = await getUnreadMessagesCount();
+        setUnreadCount(unread?.data || 0);
       } catch (error) {
         console.error("Failed to fetch profile:", error);
       }
@@ -189,7 +193,6 @@ export default function Navbar() {
         <div className="hidden md:flex items-center space-x-4">
           {user?.email && (
             <>
-              {/* Messages Icon */}
               <Link
                 href="/messages"
                 className={`relative p-2 rounded-full hover:bg-green-50 transition ${
@@ -198,11 +201,11 @@ export default function Navbar() {
               >
                 <MessageSquare className="w-5 h-5" />
                 <span className="absolute -top-0.5 -right-0.5 bg-red-500 text-white text-[10px] rounded-full w-4 h-4 flex items-center justify-center">
-                  3
+                  {unreadCount}
                 </span>
               </Link>
 
-              {/* Notification Bell Component */}
+              {/* Notification Bell */}
               <NotificationBell />
             </>
           )}
@@ -226,10 +229,7 @@ export default function Navbar() {
             <div className="relative">
               <button
                 onClick={() => setIsProfileDropdownOpen(!isProfileDropdownOpen)}
-                className="flex items-center justify-center w-9 h-9 rounded-full border-2 border-green-600
-          bg-gray-100 text-gray-700 hover:bg-green-100 hover:text-green-600 
-          focus:outline-none focus:ring-2 focus:ring-green-400 
-          transition-all duration-200 overflow-hidden"
+                className="flex items-center justify-center w-9 h-9 rounded-full border-2 border-green-600 bg-gray-100 text-gray-700 hover:bg-green-100 hover:text-green-600 focus:outline-none focus:ring-2 focus:ring-green-400 transition-all duration-200 overflow-hidden"
               >
                 {profileData?.profileImage ? (
                   <Image
@@ -276,7 +276,7 @@ export default function Navbar() {
 
         {/* Mobile Menu Button */}
         <button
-          className="md:hidden p-2 z-50"
+          className="md:hidden p-2 z-50 text-gray-800"
           onClick={() => setIsMenuOpen(!isMenuOpen)}
         >
           <svg
@@ -303,6 +303,86 @@ export default function Navbar() {
           </svg>
         </button>
       </nav>
+
+      {/* Mobile Menu */}
+      {isMenuOpen && (
+        <div className="absolute top-full left-0 right-0 bg-white shadow-lg md:hidden z-50 border-t border-gray-200">
+          <div className="px-4 py-6 space-y-4">
+            {[
+              { name: "Home", path: "/" },
+              { name: "Service", path: "/service" },
+              { name: "Blog", path: "/blog" },
+              { name: "About us", path: "/about" },
+              { name: "Contact", path: "/contact" },
+            ].map((link) => (
+              <Link
+                key={link.path}
+                href={link.path}
+                className={`block text-lg font-medium py-2 ${
+                  pathname === link.path
+                    ? "text-green-500"
+                    : "text-gray-700 hover:text-green-500"
+                }`}
+                onClick={() => setIsMenuOpen(false)}
+              >
+                {link.name}
+              </Link>
+            ))}
+
+            {/* Legal */}
+            <div className="pt-2 border-t border-gray-200">
+              <p className="text-sm font-medium text-gray-500 mb-2">Legal</p>
+              <Link
+                href="/privacy-policy-terms"
+                className="block text-lg font-medium py-2 text-gray-700 hover:text-green-500"
+                onClick={() => setIsMenuOpen(false)}
+              >
+                Privacy Policy & Terms of Use
+              </Link>
+            </div>
+
+            {/* Messages & Notifications */}
+            {user?.email && (
+              <div className="pt-4 border-t border-gray-200 space-y-3">
+                <Link
+                  href="/messages"
+                  className="block text-lg font-medium py-2 text-gray-700 hover:text-green-500"
+                  onClick={() => setIsMenuOpen(false)}
+                >
+                  Messages {unreadCount > 0 && `(${unreadCount})`}
+                </Link>
+                <Link
+                  href="/notifications"
+                  className="block text-lg font-medium py-2 text-gray-700 hover:text-green-500"
+                  onClick={() => setIsMenuOpen(false)}
+                >
+                  Notifications
+                </Link>
+              </div>
+            )}
+
+            {/* Auth Links for mobile */}
+            {!user?.email && (
+              <div className="pt-4 border-t border-gray-200 space-y-3">
+                <Link
+                  href="/login"
+                  className="block text-lg font-medium py-2 text-gray-700 hover:text-green-500"
+                  onClick={() => setIsMenuOpen(false)}
+                >
+                  Login
+                </Link>
+                <Link
+                  href="/registration"
+                  className="block text-lg font-medium py-2 text-gray-700 hover:text-green-500"
+                  onClick={() => setIsMenuOpen(false)}
+                >
+                  Sign Up
+                </Link>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   );
 }
