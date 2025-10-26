@@ -16,15 +16,18 @@ export const getAllParentCategory = async () => {
 };
 
 //get all service Category;
-export const getAllServiceCategory = async () => {
+export const getAllServiceCategory = async (pcategoryId: string) => {
   try {
-    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/scategory`, {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      cache: "no-store",
-    });
+    const res = await fetch(
+      `${process.env.NEXT_PUBLIC_API_URL}/scategory/${pcategoryId}`,
+      {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        cache: "no-store",
+      }
+    );
     const result = await res.json();
     return result;
   } catch (err) {

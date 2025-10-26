@@ -13,7 +13,9 @@ const createServiceCategory = catchAsync(async (req, res) => {
   });
 });
 const getAllServiceCategory = catchAsync(async (req, res) => {
-  const result = await ServiceCategoryService.getAllServiceCategory();
+  const { pcategoryId } = req.params;
+  const result =
+    await ServiceCategoryService.getAllServiceCategory(pcategoryId);
   sendResponse(res, {
     success: true,
     statusCode: status.OK,
