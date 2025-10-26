@@ -25,7 +25,7 @@ const OverView = () => {
       <h2 className="text-xl font-semibold text-gray-900 mb-6">
         User Overview
       </h2>
-      <div className="bg-gray-50 rounded-lg shadow p-4 sm:p-6 max-w-2xl">
+      <div className="rounded-lg p-4 sm:p-6 max-w-2xl">
         <div className="flex items-center mb-4">
           <div className="w-16 h-16 sm:w-20 sm:h-20 bg-green-100 rounded-full flex items-center justify-center text-2xl sm:text-3xl mr-4">
             {userData?.profileImage ? (

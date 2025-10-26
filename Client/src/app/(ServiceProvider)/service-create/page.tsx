@@ -1,4 +1,4 @@
-import AddService from "@/Component/Profile/provider/ServiceForm";
+import AddService from "@/Component/Service/ServiceForm";
 import Footer from "@/Component/Shared/Footer";
 import Navbar from "@/Component/Shared/Navbar";
 import React from "react";

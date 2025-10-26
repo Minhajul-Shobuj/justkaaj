@@ -42,26 +42,6 @@ export default function UserProfile() {
                   Profile
                 </button>
                 <button
-                  onClick={() => setActiveTab("services")}
-                  className={`py-4 px-2 sm:px-4 border-b-2 font-medium text-xs sm:text-sm whitespace-nowrap ${
-                    activeTab === "services"
-                      ? "border-green-500 text-green-600"
-                      : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
-                  }`}
-                >
-                  Service History
-                </button>
-                <button
-                  onClick={() => setActiveTab("orders")}
-                  className={`py-4 px-2 sm:px-4 border-b-2 font-medium text-xs sm:text-sm whitespace-nowrap ${
-                    activeTab === "orders"
-                      ? "border-green-500 text-green-600"
-                      : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
-                  }`}
-                >
-                  My Orders
-                </button>
-                <button
                   onClick={() => setActiveTab("settings")}
                   className={`py-4 px-2 sm:px-4 border-b-2 font-medium text-xs sm:text-sm whitespace-nowrap ${
                     activeTab === "settings"

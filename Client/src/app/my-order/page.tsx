@@ -17,7 +17,6 @@ const MyOrder = () => {
     const fetchOrders = async () => {
       try {
         const res = await getAllUsersOrder();
-        console.log(res);
         setOrders(res?.data || []);
       } catch (err) {
         console.error("Error fetching orders:", err);
@@ -28,16 +27,15 @@ const MyOrder = () => {
     };
     fetchOrders();
   }, []);
-  //order details
+
   const selectOrder = async (id: string) => {
     try {
       const res = await getOrderById(id);
       setSelectedOrder(res?.data);
+      setShowOrderDetails(true);
     } catch (err) {
       setError("Failed to load order details.");
       console.error("Error fetching order details:", err);
-    } finally {
-      setLoading(false);
     }
   };
 
@@ -48,149 +46,152 @@ const MyOrder = () => {
       </div>
     );
   }
+
   return (
     <>
       <Navbar />
-      {error && (
-        <div className="text-center text-red-500 py-10 text-lg">{error}</div>
-      )}
-      <h2 className="text-xl font-semibold text-gray-900 mb-6">My Orders</h2>
-      <div className="grid gap-4">
-        {orders.map((order: TOrder) => (
-          <div
-            key={order.id}
-            className="bg-white border border-green-100 rounded-lg p-4 hover:shadow-md transition-shadow"
-          >
-            <div className="flex justify-between items-start mb-4">
+
+      <div className="min-h-screen bg-gray-50 px-4 md:px-10 py-10">
+        <h2 className="text-2xl font-bold text-gray-900 mb-8">My Orders</h2>
+
+        {error && (
+          <div className="text-center text-red-500 py-10 text-lg">{error}</div>
+        )}
+
+        <div className="grid gap-6">
+          {orders.length === 0 && (
+            <p className="text-center text-gray-500">
+              You have no orders yet 😢
+            </p>
+          )}
+
+          {orders.map((order: TOrder) => (
+            <div
+              key={order.id}
+              className="bg-white border border-gray-200 rounded-xl shadow-sm hover:shadow-md transition-all p-5 flex flex-col md:flex-row justify-between items-start md:items-center"
+            >
               <div>
                 <h3 className="text-lg font-semibold text-gray-900">
                   {order?.service?.title}
                 </h3>
                 <p className="text-gray-600">
-                  Provider: {order.provider.fullName}
+                  Provider:{" "}
+                  <span className="font-medium text-gray-800">
+                    {order.provider.fullName}
+                  </span>
                 </p>
-                <p className="text-gray-600">
+                <p className="text-gray-500 text-sm">
                   {new Date(order.createdAt).toLocaleDateString("en-GB")} at{" "}
                   {new Date(order.createdAt).toLocaleTimeString("en-US", {
                     hour: "2-digit",
                     minute: "2-digit",
                   })}
                 </p>
-
-                <p className="text-green-600 font-medium">৳{order.price}</p>
+                <p className="text-green-600 font-semibold mt-1">
+                  ৳{order.price}
+                </p>
               </div>
-              <div className="flex items-center space-x-2">
+
+              <div className="flex items-center gap-3 mt-4 md:mt-0">
                 <span
-                  className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(
+                  className={`px-3 py-1 rounded-full text-xs font-medium ${getStatusColor(
                     order.status
                   )}`}
                 >
                   {order.status.charAt(0).toUpperCase() + order.status.slice(1)}
                 </span>
+
                 <button
-                  onClick={() => {
-                    setShowOrderDetails(true);
-                    selectOrder(order.id);
-                  }}
-                  className="text-green-600 hover:text-green-700 text-sm font-medium"
+                  onClick={() => selectOrder(order.id)}
+                  className="text-green-600 hover:text-green-700 text-sm font-medium underline"
                 >
                   View Details
                 </button>
-                {order.status !== "completed" &&
-                  order.status !== "cancelled" && (
-                    <button
-                      onClick={() => handleCancelOrder(order.price)}
-                      className="text-red-500 hover:text-red-700 text-xs font-bold border border-red-200 rounded px-2 py-1 ml-2"
-                    >
-                      Cancel
-                    </button>
-                  )}
+
+                <button
+                  disabled={order.status !== "pending"}
+                  className={`text-sm font-semibold border rounded-md px-3 py-1 transition-all duration-200 ${
+                    order.status === "pending"
+                      ? "text-red-600 border-red-300 hover:bg-red-50"
+                      : "text-gray-400 border-gray-200 cursor-not-allowed"
+                  }`}
+                >
+                  Cancel
+                </button>
               </div>
             </div>
-          </div>
-        ))}
+          ))}
+        </div>
       </div>
-      {/* Order Details Modal */}
+
+      {/* ===== Order Details Modal ===== */}
       {showOrderDetails && selectedOrder && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg p-6 max-w-md w-full mx-4">
-            <div className="flex justify-between items-center mb-4">
-              <h3 className="text-lg font-semibold text-gray-900">
+        <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50 backdrop-blur-sm">
+          <div className="bg-white rounded-xl shadow-lg p-6 w-full max-w-lg mx-4 animate-fade-in">
+            <div className="flex justify-between items-center border-b pb-3 mb-4">
+              <h3 className="text-xl font-semibold text-gray-900">
                 Order Details
               </h3>
               <button
                 onClick={() => setShowOrderDetails(false)}
-                className="text-gray-400 hover:text-gray-600"
+                className="text-gray-400 hover:text-gray-600 text-lg"
               >
                 ✕
               </button>
             </div>
-            <div className="space-y-4">
+
+            <div className="space-y-4 text-gray-800">
               <div>
-                <label className="block text-sm font-medium text-gray-700">
-                  Provider Name
-                </label>
-                <p className="text-gray-900">
+                <p className="text-sm text-gray-500">Provider Name</p>
+                <p className="font-medium">
                   {selectedOrder?.provider?.fullName}
                 </p>
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700">
-                  Phone Number
-                </label>
-                <p className="text-gray-900">
+                <p className="text-sm text-gray-500">Phone Number</p>
+                <p className="font-medium">
                   {selectedOrder?.provider?.user?.phone}
                 </p>
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700">
-                  Email
-                </label>
-                <p className="text-gray-900">
-                  {selectedOrder?.provider?.email}
-                </p>
+                <p className="text-sm text-gray-500">Email</p>
+                <p className="font-medium">{selectedOrder?.provider?.email}</p>
               </div>
+
               <div className="flex justify-between">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700">
-                    Booked At (Date & Time)
-                  </label>
-                  <p className="text-gray-900">
+                  <p className="text-sm text-gray-500">Booked At</p>
+                  <p className="font-medium">
                     {new Date(selectedOrder?.createdAt).toLocaleDateString(
                       "en-GB"
                     )}{" "}
                     at{" "}
                     {new Date(selectedOrder?.createdAt).toLocaleTimeString(
                       "en-US",
-                      {
-                        hour: "2-digit",
-                        minute: "2-digit",
-                      }
+                      { hour: "2-digit", minute: "2-digit" }
                     )}
                   </p>
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700">
-                    Price
-                  </label>
+                  <p className="text-sm text-gray-500">Price</p>
                   <p className="text-green-600 font-semibold">
                     ৳{selectedOrder.price}
                   </p>
                 </div>
               </div>
+
               <div>
-                <label className="block text-sm font-medium text-gray-700">
-                  Service Details
-                </label>
-                <p className="text-gray-900">
+                <p className="text-sm text-gray-500">Service Details</p>
+                <p className="text-gray-800 leading-relaxed">
                   {selectedOrder?.service?.description}
                 </p>
               </div>
             </div>
-            <div className="mt-6 flex justify-end">
+
+            <div className="mt-6 text-right">
               <button
                 onClick={() => setShowOrderDetails(false)}
-                className="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-md"
+                className="bg-green-600 hover:bg-green-700 text-white px-5 py-2 rounded-lg font-medium"
               >
                 Close
               </button>
@@ -198,11 +199,13 @@ const MyOrder = () => {
           </div>
         </div>
       )}
+
       <Footer />
     </>
   );
 };
-// Add helper functions for status color, cancel, and send message
+
+// Helper functions
 function getStatusColor(status: string) {
   switch (status) {
     case "pending":
@@ -217,8 +220,9 @@ function getStatusColor(status: string) {
       return "bg-gray-100 text-gray-800";
   }
 }
-function handleCancelOrder(orderId: number) {
-  alert(`Order ${orderId} cancelled.`);
-}
+
+// function handleCancelOrder(orderId: number) {
+//   alert(`Order ${orderId} cancelled.`);
+// }
 
 export default MyOrder;
