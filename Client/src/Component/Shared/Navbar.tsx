@@ -262,6 +262,15 @@ export default function Navbar() {
                       Admin Dashboard
                     </Link>
                   )}
+                  {user?.role === "USER" && (
+                    <Link
+                      href="/my-order"
+                      className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-green-500"
+                      onClick={() => setIsProfileDropdownOpen(false)}
+                    >
+                      My Orders
+                    </Link>
+                  )}
                   <button
                     className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-green-500"
                     onClick={handleLogOut}
@@ -340,24 +349,101 @@ export default function Navbar() {
                 Privacy Policy & Terms of Use
               </Link>
             </div>
+            {user?.role === "SERVICE_PROVIDER" && (
+              <div className="relative">
+                <button
+                  onClick={() =>
+                    setIsBusinessDropdownOpen(!isBusinessDropdownOpen)
+                  }
+                  className="flex items-center space-x-1 text-gray-700 hover:text-green-500 transition"
+                >
+                  <span>My Business</span>
+                  <svg
+                    className={`w-4 h-4 transition-transform ${
+                      isBusinessDropdownOpen ? "rotate-180" : ""
+                    }`}
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M19 9l-7 7-7-7"
+                    />
+                  </svg>
+                </button>
+
+                {isBusinessDropdownOpen && (
+                  <div className="absolute left-0 mt-2 w-48 bg-white border border-gray-200 rounded-md shadow-lg py-1 z-50">
+                    <Link
+                      href="/my-services"
+                      className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-green-500"
+                      onClick={() => setIsBusinessDropdownOpen(false)}
+                    >
+                      My Services
+                    </Link>
+                    <Link
+                      href="/service-create"
+                      className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-green-500"
+                      onClick={() => setIsBusinessDropdownOpen(false)}
+                    >
+                      Add Service
+                    </Link>
+                    <Link
+                      href="/service-history"
+                      className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-green-500"
+                      onClick={() => setIsBusinessDropdownOpen(false)}
+                    >
+                      Service History
+                    </Link>
+                  </div>
+                )}
+              </div>
+            )}
 
             {/* Messages & Notifications */}
             {user?.email && (
-              <div className="pt-4 border-t border-gray-200 space-y-3">
+              <div className="px-4 py-2 pt-4 border-t border-gray-200 space-y-3">
+                {user?.role === "ADMIN" && (
+                  <Link
+                    href="/admin/dashboard"
+                    className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-green-500"
+                    onClick={() => setIsProfileDropdownOpen(false)}
+                  >
+                    Admin Dashboard
+                  </Link>
+                )}
+                {user?.role === "USER" && (
+                  <Link
+                    href="/my-order"
+                    className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-green-500"
+                    onClick={() => setIsProfileDropdownOpen(false)}
+                  >
+                    My Order
+                  </Link>
+                )}
                 <Link
                   href="/messages"
-                  className="block text-lg font-medium py-2 text-gray-700 hover:text-green-500"
-                  onClick={() => setIsMenuOpen(false)}
+                  className={`relative p-2 rounded-full hover:bg-green-50 transition ${
+                    pathname === "/messages"
+                      ? "text-green-600"
+                      : "text-gray-600"
+                  }`}
                 >
-                  Messages {unreadCount > 0 && `(${unreadCount})`}
+                  <MessageSquare className="w-5 h-5" />
+                  <span className="absolute -top-0.5 -right-0.5 bg-red-500 text-white text-[10px] rounded-full w-4 h-4 flex items-center justify-center">
+                    {unreadCount}
+                  </span>
                 </Link>
-                <Link
-                  href="/notifications"
-                  className="block text-lg font-medium py-2 text-gray-700 hover:text-green-500"
-                  onClick={() => setIsMenuOpen(false)}
+                <NotificationBell />
+                <button
+                  className="block w-full text-left text-sm text-gray-700 hover:bg-gray-100 hover:text-green-500"
+                  onClick={handleLogOut}
                 >
-                  Notifications
-                </Link>
+                  Logout
+                </button>
               </div>
             )}
 

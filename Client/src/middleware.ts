@@ -5,7 +5,7 @@ type Role = keyof typeof roleBasedPrivateRoutes;
 const authRoutes = ["/login", "/register"];
 const roleBasedPrivateRoutes = {
   ADMIN: [/^\/admin/, /^\/profile/],
-  USER: [/^\/user/, /^\/profile\/user/, /^\/checkout/],
+  USER: [/^\/user/, /^\/profile\/user/, /^\/checkout/, /^\/my-order/],
   SERVICE_PROVIDER: [
     /^\/service_provider/,
     /^\/profile\/service_provider/,
@@ -55,5 +55,6 @@ export const config = {
     "/my-services",
     "/service-history",
     "/service-create",
+    "/my-order",
   ],
 };
