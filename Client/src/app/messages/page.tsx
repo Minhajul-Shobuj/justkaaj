@@ -7,21 +7,7 @@ import {
   SendMessage,
 } from "@/service/chat";
 import Navbar from "@/Component/Shared/Navbar";
-
-interface ChatUser {
-  user_id: string;
-  fullName: string;
-  profileImage?: string;
-}
-
-interface Message {
-  id: string;
-  senderId: string;
-  receiverId: string;
-  message: string;
-  createdAt: string;
-  sender: { user_id: string; fullName: string };
-}
+import { ChatUser, Message } from "@/types/message";
 
 export default function MessagePage() {
   const [users, setUsers] = useState<ChatUser[]>([]);
@@ -30,6 +16,7 @@ export default function MessagePage() {
   const [newMessage, setNewMessage] = useState("");
   const [loading, setLoading] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const lastMessageIdRef = useRef<string | null>(null);
 
   // Auto-scroll to latest message
   const scrollToBottom = () => {
@@ -58,8 +45,20 @@ export default function MessagePage() {
     const fetchMessages = async () => {
       try {
         const res = await GetAllMessagesFromASender(selectedUser.user_id);
-        setMessages(res.data || []);
-        scrollToBottom();
+        const newMessages = res.data || [];
+
+        // Only scroll if there is a new message
+        const lastMessageId = newMessages.length
+          ? newMessages[newMessages.length - 1].id
+          : null;
+
+        if (lastMessageId !== lastMessageIdRef.current) {
+          lastMessageIdRef.current = lastMessageId;
+          setMessages(newMessages);
+          scrollToBottom();
+        } else {
+          setMessages(newMessages); // update without scrolling
+        }
       } catch (err) {
         console.error("Failed to load messages", err);
       }

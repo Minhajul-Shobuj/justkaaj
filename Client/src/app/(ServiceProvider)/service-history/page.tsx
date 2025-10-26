@@ -9,17 +9,13 @@ import Loading from "@/app/loading";
 import Navbar from "@/Component/Shared/Navbar";
 import Footer from "@/Component/Shared/Footer";
 import { TOrder } from "@/types/order";
-import { GetAllMessagesFromASender, SendMessage } from "@/service/chat";
+import ChatModal from "@/Component/Shared/ChatModal";
 
 const ServiceHistory = () => {
   const [orders, setOrders] = useState<TOrder[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedOrder, setSelectedOrder] = useState<TOrder | null>(null);
   const [showChat, setShowChat] = useState(false);
-  const [messages, setMessages] = useState<
-    { senderId: string; receiverId: string; message: string }[]
-  >([]);
-  const [newMessage, setNewMessage] = useState("");
   const [newStatus, setNewStatus] = useState("");
   const [updating, setUpdating] = useState(false);
   const [successMsg, setSuccessMsg] = useState("");
@@ -52,39 +48,6 @@ const ServiceHistory = () => {
     }
   };
 
-  // 🟢 Fetch messages when chat modal opens
-  // Auto-refresh chat messages every 5 seconds
-  useEffect(() => {
-    if (!showChat || !selectedOrder) return;
-
-    const fetchMessages = async () => {
-      try {
-        const res = await GetAllMessagesFromASender(selectedOrder?.userId);
-        setMessages(res?.data || []);
-      } catch (err) {
-        console.error("Error loading chat messages:", err);
-      }
-    };
-
-    fetchMessages(); // initial fetch
-
-    const interval = setInterval(fetchMessages, 5000); // refresh every 5s
-    return () => clearInterval(interval); // cleanup
-  }, [showChat, selectedOrder]);
-
-  // 🟢 Send a message to backend
-  const handleSendMessage = async () => {
-    if (!newMessage.trim() || !selectedOrder) return;
-    try {
-      await SendMessage(newMessage, selectedOrder.userId);
-      setNewMessage("");
-      const res = await GetAllMessagesFromASender(selectedOrder.userId);
-      setMessages(res?.data || []);
-    } catch (err) {
-      console.error("Error sending message:", err);
-    }
-  };
-
   // 🟢 Update order status
   const handleStatusUpdate = async () => {
     if (!selectedOrder || !newStatus) return;
@@ -112,20 +75,26 @@ const ServiceHistory = () => {
 
   if (!orders.length)
     return (
-      <div className="text-center py-20 text-black">
-        No service history found 😔
-      </div>
+      <>
+        <Navbar />
+        <div className="text-center py-20 text-black">
+          No service history found 😔
+        </div>
+        <Footer />
+      </>
     );
 
   return (
     <>
       <Navbar />
-      <div className="max-w-6xl mx-auto px-4 py-10 text-black">
+      <div className="max-w-6xl mx-auto px-4 py-10 text-black min-h-screen">
         <h1 className="text-2xl font-bold mb-6 flex items-center gap-2">
           🧾 My Service History
         </h1>
 
-        <div className="grid gap-6">
+        <div className="grid gap-6 pb-16">
+          {" "}
+          {/* ✅ Added bottom padding to prevent footer overlap */}
           {orders.map((order) => (
             <div
               key={order.id}
@@ -181,7 +150,6 @@ const ServiceHistory = () => {
                     onClick={() => {
                       setSelectedOrder(order);
                       setShowChat(true);
-                      setMessages([]);
                     }}
                     className="bg-green-600 text-white px-4 py-2 rounded-xl hover:bg-green-700 text-sm transition"
                   >
@@ -193,13 +161,12 @@ const ServiceHistory = () => {
           ))}
         </div>
       </div>
-
       <Footer />
 
-      {/* ====== ORDER DETAILS MODAL ====== */}
+      {/* ===== ORDER DETAILS MODAL ===== */}
       {selectedOrder && !showChat && (
         <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40"
+          className="fixed inset-0 z-50 flex items-center justify-center backdrop-blur-md bg-black/20"
           onClick={() => setSelectedOrder(null)}
         >
           <div
@@ -316,7 +283,6 @@ const ServiceHistory = () => {
               <button
                 onClick={() => {
                   setShowChat(true);
-                  setMessages([]);
                 }}
                 className="bg-green-600 text-white px-4 py-2 rounded-xl hover:bg-green-700 transition"
               >
@@ -327,79 +293,14 @@ const ServiceHistory = () => {
         </div>
       )}
 
-      {/* ====== CHAT MODAL ====== */}
+      {/* ===== CHAT MODAL (✅ now imported component) ===== */}
       {showChat && selectedOrder && (
-        <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40"
-          onClick={() => {
-            setShowChat(false);
-            setSelectedOrder(null);
-          }}
-        >
-          <div
-            className="bg-white rounded-2xl w-full max-w-md mx-4 p-4 relative shadow-xl flex flex-col h-[500px] text-black"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <button
-              onClick={() => {
-                setShowChat(false);
-                setSelectedOrder(null);
-              }}
-              className="absolute top-3 right-3 text-gray-500 hover:text-gray-700 text-xl"
-            >
-              ✖
-            </button>
-
-            <h2 className="text-lg font-semibold mb-2">
-              Chat with {selectedOrder.fullName || "Customer"}
-            </h2>
-
-            <div className="flex-1 overflow-y-auto border rounded-xl p-3 mb-3 space-y-2 bg-gray-50">
-              {messages.length === 0 ? (
-                <p className="text-center text-gray-400 text-sm mt-20">
-                  No messages yet 👋
-                </p>
-              ) : (
-                messages.map((msg, i) => (
-                  <div
-                    key={i}
-                    className={`flex ${
-                      msg.senderId === selectedOrder.userId
-                        ? "justify-start"
-                        : "justify-end"
-                    }`}
-                  >
-                    <div
-                      className={`px-3 py-2 rounded-xl max-w-[70%] text-sm ${
-                        msg.senderId === selectedOrder.userId
-                          ? "bg-gray-200 text-black"
-                          : "bg-green-600 text-white"
-                      }`}
-                    >
-                      {msg.message}
-                    </div>
-                  </div>
-                ))
-              )}
-            </div>
-
-            <div className="flex gap-2">
-              <input
-                type="text"
-                placeholder="Type a message..."
-                value={newMessage}
-                onChange={(e) => setNewMessage(e.target.value)}
-                className="flex-1 border rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-500 text-black"
-              />
-              <button
-                onClick={handleSendMessage}
-                className="bg-green-600 text-white px-4 py-2 rounded-xl hover:bg-green-700 transition"
-              >
-                Send
-              </button>
-            </div>
-          </div>
-        </div>
+        <ChatModal
+          showChat={showChat}
+          setShowChat={setShowChat}
+          selectedOrder={selectedOrder}
+          setSelectedOrder={setSelectedOrder}
+        />
       )}
     </>
   );
