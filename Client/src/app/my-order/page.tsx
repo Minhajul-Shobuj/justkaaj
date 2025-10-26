@@ -5,10 +5,11 @@ import Navbar from "@/Component/Shared/Navbar";
 import { getAllUsersOrder, getOrderById } from "@/service/OrderApi";
 import { TOrder } from "@/types/order";
 import React, { useEffect, useState } from "react";
-
+import ChatModal from "@/Component/Shared/ChatModal";
 const MyOrder = () => {
   const [selectedOrder, setSelectedOrder] = useState<TOrder | null>(null);
   const [showOrderDetails, setShowOrderDetails] = useState(false);
+  const [showChat, setShowChat] = useState(false); // Chat modal state
   const [orders, setOrders] = useState<TOrder[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -51,7 +52,7 @@ const MyOrder = () => {
     <>
       <Navbar />
 
-      <div className="min-h-screen bg-gray-50 px-4 md:px-10 py-10">
+      <div className="min-h-screen px-4 md:px-10 py-10">
         <h2 className="text-2xl font-bold text-gray-900 mb-8">My Orders</h2>
 
         {error && (
@@ -100,6 +101,15 @@ const MyOrder = () => {
                 >
                   {order.status.charAt(0).toUpperCase() + order.status.slice(1)}
                 </span>
+                <button
+                  onClick={() => {
+                    setSelectedOrder(order);
+                    setShowChat(true);
+                  }}
+                  className="text-sm font-semibold border rounded-md px-3 py-1 transition-all duration-200 text-blue-600 border-blue-300 hover:bg-blue-50"
+                >
+                  Chat
+                </button>
 
                 <button
                   onClick={() => selectOrder(order.id)}
@@ -126,7 +136,7 @@ const MyOrder = () => {
 
       {/* ===== Order Details Modal ===== */}
       {showOrderDetails && selectedOrder && (
-        <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50 backdrop-blur-sm">
+        <div className="fixed inset-0 backdrop-blur-md bg-black/20 flex items-center justify-center z-50">
           <div className="bg-white rounded-xl shadow-lg p-6 w-full max-w-lg mx-4 animate-fade-in">
             <div className="flex justify-between items-center border-b pb-3 mb-4">
               <h3 className="text-xl font-semibold text-gray-900">
@@ -200,6 +210,16 @@ const MyOrder = () => {
         </div>
       )}
 
+      {/* ===== Chat Modal ===== */}
+      {showChat && selectedOrder && (
+        <ChatModal
+          showChat={showChat}
+          setShowChat={setShowChat}
+          selectedOrder={selectedOrder}
+          setSelectedOrder={setSelectedOrder}
+        />
+      )}
+
       <Footer />
     </>
   );
@@ -208,21 +228,17 @@ const MyOrder = () => {
 // Helper functions
 function getStatusColor(status: string) {
   switch (status) {
-    case "pending":
+    case "PENDING":
       return "bg-yellow-100 text-yellow-800";
-    case "ongoing":
+    case "IN_PROGRESS":
       return "bg-blue-100 text-blue-800";
-    case "completed":
+    case "COMPLETED":
       return "bg-green-100 text-green-800";
-    case "cancelled":
+    case "CANCELED":
       return "bg-red-100 text-red-800";
     default:
       return "bg-gray-100 text-gray-800";
   }
 }
-
-// function handleCancelOrder(orderId: number) {
-//   alert(`Order ${orderId} cancelled.`);
-// }
 
 export default MyOrder;
