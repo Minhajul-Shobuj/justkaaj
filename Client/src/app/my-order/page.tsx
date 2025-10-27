@@ -215,7 +215,10 @@ const MyOrder = () => {
         <ChatModal
           showChat={showChat}
           setShowChat={setShowChat}
-          receiverId={selectedOrder?.provider?.user?.user_id}
+          selectedUser={{
+            userId: selectedOrder?.provider?.user?.user_id,
+            fullName: selectedOrder?.provider?.user?.fullName,
+          }}
           setSelectedChatUser={setSelectedOrder}
         />
       )}

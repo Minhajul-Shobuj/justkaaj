@@ -3,18 +3,29 @@
 import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import Image from "next/image";
-import { Star } from "lucide-react";
+import { Star, MessageSquare } from "lucide-react";
+import Link from "next/link";
+
 import { TService, TProviderService } from "@/types/service";
 import { getServiceByID } from "@/service/servicesApi";
 import Loading from "@/app/loading";
 import Footer from "@/Component/Shared/Footer";
 import Navbar from "@/Component/Shared/Navbar";
-import Link from "next/link";
+import ChatModal from "@/Component/Shared/ChatModal";
+import { useUser } from "@/context/UserContext";
 
 export default function ServiceDetailsPage() {
   const { id } = useParams();
   const [service, setService] = useState<TService | null>(null);
   const [loading, setLoading] = useState(true);
+  const { user } = useUser();
+
+  // 🟢 Chat modal states
+  const [showChat, setShowChat] = useState(false);
+  const [selectedChatUser, setSelectedChatUser] = useState<{
+    userId: string;
+    fullName?: string;
+  } | null>(null);
 
   useEffect(() => {
     async function fetchService() {
@@ -41,7 +52,7 @@ export default function ServiceDetailsPage() {
   const providerService: TProviderService | undefined =
     service.providerServices?.[0];
   const provider = providerService?.service_provider;
-  const user = provider?.user;
+  const providerDetails = provider?.user;
 
   return (
     <>
@@ -141,25 +152,29 @@ export default function ServiceDetailsPage() {
             </div>
 
             {/* Provider Info */}
-            {provider && user && (
+            {provider && providerDetails && (
               <div className="bg-white p-6 rounded-2xl shadow-lg border border-gray-100">
                 <h2 className="text-xl font-semibold text-gray-900 mb-4">
                   Service Provider
                 </h2>
                 <div className="flex items-center gap-4">
                   <Image
-                    src={user.profileImage || "/default-avatar.png"}
-                    alt={user.fullName}
+                    src={providerDetails.profileImage || "/default-avatar.png"}
+                    alt={providerDetails.fullName}
                     width={80}
                     height={80}
                     className="rounded-full object-cover border-2 border-gray-200"
                   />
                   <div className="flex-1">
                     <h3 className="text-lg font-semibold text-gray-900">
-                      {user.fullName}
+                      {providerDetails.fullName}
                     </h3>
-                    <p className="text-sm text-gray-600">{user.email}</p>
-                    <p className="text-sm text-gray-600">{user.phone}</p>
+                    <p className="text-sm text-gray-600">
+                      {providerDetails.email}
+                    </p>
+                    <p className="text-sm text-gray-600">
+                      {providerDetails.phone}
+                    </p>
 
                     <div className="flex items-center gap-2 mt-2 text-yellow-500">
                       <Star className="w-4 h-4 fill-yellow-500" />
@@ -185,6 +200,23 @@ export default function ServiceDetailsPage() {
                         </a>
                       </p>
                     )}
+
+                    {/* 🟢 Chat Button */}
+                    {user && user.role === "USER" && (
+                      <button
+                        onClick={() => {
+                          setSelectedChatUser({
+                            userId: providerDetails.user_id,
+                            fullName: providerDetails.fullName,
+                          });
+                          setShowChat(true);
+                        }}
+                        className="mt-4 flex items-center gap-2 bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-xl transition"
+                      >
+                        <MessageSquare className="w-4 h-4" />
+                        Chat with Provider
+                      </button>
+                    )}
                   </div>
                 </div>
               </div>
@@ -192,6 +224,17 @@ export default function ServiceDetailsPage() {
           </div>
         </div>
       </div>
+
+      {/* 🟢 Chat Modal */}
+      {showChat && selectedChatUser && (
+        <ChatModal
+          showChat={showChat}
+          setShowChat={setShowChat}
+          selectedUser={selectedChatUser}
+          setSelectedChatUser={setSelectedChatUser}
+        />
+      )}
+
       <Footer />
     </>
   );

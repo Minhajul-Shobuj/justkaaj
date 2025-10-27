@@ -299,7 +299,10 @@ const ServiceHistory = () => {
         <ChatModal
           showChat={showChat}
           setShowChat={setShowChat}
-          receiverId={selectedOrder.userId}
+          selectedUser={{
+            userId: selectedOrder.userId,
+            fullName: selectedOrder.fullName,
+          }}
           setSelectedChatUser={setSelectedOrder}
         />
       )}

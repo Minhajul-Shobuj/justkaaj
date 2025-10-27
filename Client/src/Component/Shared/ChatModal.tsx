@@ -1,20 +1,23 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { GetAllMessagesFromASender, SendMessage } from "@/service/chat";
 import { Message } from "@/types/message";
-import { TOrder } from "@/types/order";
 import React, { useEffect, useState, useRef } from "react";
 
 type ChatModalProps = {
   setShowChat: React.Dispatch<React.SetStateAction<boolean>>;
   showChat: boolean;
-  setSelectedChatUser: React.Dispatch<React.SetStateAction<TOrder | null>>;
-  receiverId: string;
+  selectedUser: {
+    userId: string;
+    fullName?: string;
+  } | null;
+  setSelectedChatUser: React.Dispatch<React.SetStateAction<any>>;
 };
 
 const ChatModal: React.FC<ChatModalProps> = ({
   setShowChat,
   showChat,
   setSelectedChatUser,
-  receiverId,
+  selectedUser,
 }) => {
   const [newMessage, setNewMessage] = useState("");
   const [messages, setMessages] = useState<Message[]>([]);
@@ -26,11 +29,11 @@ const ChatModal: React.FC<ChatModalProps> = ({
   };
   // 🟢 Fetch messages and auto-refresh
   useEffect(() => {
-    if (!showChat || !receiverId) return;
+    if (!showChat || !selectedUser) return;
 
     const fetchMessages = async () => {
       try {
-        const res = await GetAllMessagesFromASender(receiverId);
+        const res = await GetAllMessagesFromASender(selectedUser.userId);
         const newMessages = res?.data || [];
         // Only scroll if a new message arrived
         const lastMessageId =
@@ -55,14 +58,14 @@ const ChatModal: React.FC<ChatModalProps> = ({
     fetchMessages();
     const interval = setInterval(fetchMessages, 5000);
     return () => clearInterval(interval);
-  }, [showChat, receiverId]);
+  }, [showChat, selectedUser]);
 
   const handleSendMessage = async () => {
-    if (!newMessage.trim() || !receiverId) return;
+    if (!newMessage.trim() || !selectedUser?.userId) return;
     try {
-      await SendMessage(newMessage, receiverId);
+      await SendMessage(newMessage, selectedUser.userId);
       setNewMessage("");
-      const res = await GetAllMessagesFromASender(receiverId);
+      const res = await GetAllMessagesFromASender(selectedUser.userId);
       setMessages(res?.data || []);
       scrollToBottom();
     } catch (err) {
@@ -92,7 +95,9 @@ const ChatModal: React.FC<ChatModalProps> = ({
           ✖
         </button>
 
-        <h2 className="text-lg font-semibold mb-2">Chat with</h2>
+        <h2 className="text-lg font-semibold mb-2">
+          Chat with {selectedUser?.fullName}
+        </h2>
 
         <div className="flex-1 overflow-y-auto border rounded-xl p-3 mb-3 space-y-2 bg-gray-50">
           {messages.length === 0 ? (
@@ -104,12 +109,14 @@ const ChatModal: React.FC<ChatModalProps> = ({
               <div
                 key={i}
                 className={`flex ${
-                  msg.senderId === receiverId ? "justify-start" : "justify-end"
+                  msg.senderId === selectedUser?.userId
+                    ? "justify-start"
+                    : "justify-end"
                 }`}
               >
                 <div
                   className={`px-3 py-2 rounded-xl max-w-[70%] text-sm ${
-                    msg.senderId === receiverId
+                    msg.senderId === selectedUser?.userId
                       ? "bg-gray-200 text-black"
                       : "bg-green-600 text-white"
                   }`}
