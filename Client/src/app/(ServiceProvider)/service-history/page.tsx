@@ -19,6 +19,7 @@ const ServiceHistory = () => {
   const [newStatus, setNewStatus] = useState("");
   const [updating, setUpdating] = useState(false);
   const [successMsg, setSuccessMsg] = useState("");
+  console.log(selectedOrder);
 
   // 🟢 Fetch all service orders
   useEffect(() => {
@@ -298,8 +299,8 @@ const ServiceHistory = () => {
         <ChatModal
           showChat={showChat}
           setShowChat={setShowChat}
-          selectedOrder={selectedOrder}
-          setSelectedOrder={setSelectedOrder}
+          receiverId={selectedOrder.userId}
+          setSelectedChatUser={setSelectedOrder}
         />
       )}
     </>

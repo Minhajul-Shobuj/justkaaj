@@ -6,18 +6,15 @@ import React, { useEffect, useState, useRef } from "react";
 type ChatModalProps = {
   setShowChat: React.Dispatch<React.SetStateAction<boolean>>;
   showChat: boolean;
-  setSelectedOrder: React.Dispatch<React.SetStateAction<TOrder | null>>;
-  selectedOrder: {
-    userId: string;
-    fullName?: string;
-  } | null;
+  setSelectedChatUser: React.Dispatch<React.SetStateAction<TOrder | null>>;
+  receiverId: string;
 };
 
 const ChatModal: React.FC<ChatModalProps> = ({
   setShowChat,
   showChat,
-  setSelectedOrder,
-  selectedOrder,
+  setSelectedChatUser,
+  receiverId,
 }) => {
   const [newMessage, setNewMessage] = useState("");
   const [messages, setMessages] = useState<Message[]>([]);
@@ -27,16 +24,14 @@ const ChatModal: React.FC<ChatModalProps> = ({
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   };
-
   // 🟢 Fetch messages and auto-refresh
   useEffect(() => {
-    if (!showChat || !selectedOrder) return;
+    if (!showChat || !receiverId) return;
 
     const fetchMessages = async () => {
       try {
-        const res = await GetAllMessagesFromASender(selectedOrder.userId);
+        const res = await GetAllMessagesFromASender(receiverId);
         const newMessages = res?.data || [];
-
         // Only scroll if a new message arrived
         const lastMessageId =
           newMessages.length > 0
@@ -50,7 +45,7 @@ const ChatModal: React.FC<ChatModalProps> = ({
           setMessages(newMessages);
           scrollToBottom();
         } else {
-          setMessages(newMessages); // update without scrolling
+          setMessages(newMessages);
         }
       } catch (err) {
         console.error("Error loading chat messages:", err);
@@ -60,14 +55,14 @@ const ChatModal: React.FC<ChatModalProps> = ({
     fetchMessages();
     const interval = setInterval(fetchMessages, 5000);
     return () => clearInterval(interval);
-  }, [showChat, selectedOrder]);
+  }, [showChat, receiverId]);
 
   const handleSendMessage = async () => {
-    if (!newMessage.trim() || !selectedOrder) return;
+    if (!newMessage.trim() || !receiverId) return;
     try {
-      await SendMessage(newMessage, selectedOrder.userId);
+      await SendMessage(newMessage, receiverId);
       setNewMessage("");
-      const res = await GetAllMessagesFromASender(selectedOrder.userId);
+      const res = await GetAllMessagesFromASender(receiverId);
       setMessages(res?.data || []);
       scrollToBottom();
     } catch (err) {
@@ -80,7 +75,7 @@ const ChatModal: React.FC<ChatModalProps> = ({
       className="fixed inset-0 z-50 flex items-center justify-center backdrop-blur-md bg-black/20"
       onClick={() => {
         setShowChat(false);
-        setSelectedOrder(null);
+        setSelectedChatUser(null);
       }}
     >
       <div
@@ -90,16 +85,14 @@ const ChatModal: React.FC<ChatModalProps> = ({
         <button
           onClick={() => {
             setShowChat(false);
-            setSelectedOrder(null);
+            setSelectedChatUser(null);
           }}
           className="absolute top-3 right-3 text-gray-500 hover:text-gray-700 text-xl"
         >
           ✖
         </button>
 
-        <h2 className="text-lg font-semibold mb-2">
-          Chat with {selectedOrder?.fullName || "Customer"}
-        </h2>
+        <h2 className="text-lg font-semibold mb-2">Chat with</h2>
 
         <div className="flex-1 overflow-y-auto border rounded-xl p-3 mb-3 space-y-2 bg-gray-50">
           {messages.length === 0 ? (
@@ -111,14 +104,12 @@ const ChatModal: React.FC<ChatModalProps> = ({
               <div
                 key={i}
                 className={`flex ${
-                  msg.senderId === selectedOrder?.userId
-                    ? "justify-start"
-                    : "justify-end"
+                  msg.senderId === receiverId ? "justify-start" : "justify-end"
                 }`}
               >
                 <div
                   className={`px-3 py-2 rounded-xl max-w-[70%] text-sm ${
-                    msg.senderId === selectedOrder?.userId
+                    msg.senderId === receiverId
                       ? "bg-gray-200 text-black"
                       : "bg-green-600 text-white"
                   }`}

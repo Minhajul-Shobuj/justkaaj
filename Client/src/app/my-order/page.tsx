@@ -9,7 +9,7 @@ import ChatModal from "@/Component/Shared/ChatModal";
 const MyOrder = () => {
   const [selectedOrder, setSelectedOrder] = useState<TOrder | null>(null);
   const [showOrderDetails, setShowOrderDetails] = useState(false);
-  const [showChat, setShowChat] = useState(false); // Chat modal state
+  const [showChat, setShowChat] = useState(false);
   const [orders, setOrders] = useState<TOrder[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -215,8 +215,8 @@ const MyOrder = () => {
         <ChatModal
           showChat={showChat}
           setShowChat={setShowChat}
-          selectedOrder={selectedOrder}
-          setSelectedOrder={setSelectedOrder}
+          receiverId={selectedOrder?.provider?.user?.user_id}
+          setSelectedChatUser={setSelectedOrder}
         />
       )}
 
