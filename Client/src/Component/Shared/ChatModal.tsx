@@ -96,7 +96,8 @@ const ChatModal: React.FC<ChatModalProps> = ({
         </button>
 
         <h2 className="text-lg font-semibold mb-2">
-          Chat with {selectedUser?.fullName}
+          Chat with{" "}
+          <span className="text-green-400">{selectedUser?.fullName}</span>
         </h2>
 
         <div className="flex-1 overflow-y-auto border rounded-xl p-3 mb-3 space-y-2 bg-gray-50">

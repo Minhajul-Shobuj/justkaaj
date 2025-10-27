@@ -202,21 +202,25 @@ export default function ServiceDetailsPage() {
                     )}
 
                     {/* 🟢 Chat Button */}
-                    {user && user.role === "USER" && (
-                      <button
-                        onClick={() => {
-                          setSelectedChatUser({
-                            userId: providerDetails.user_id,
-                            fullName: providerDetails.fullName,
-                          });
-                          setShowChat(true);
-                        }}
-                        className="mt-4 flex items-center gap-2 bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-xl transition"
-                      >
-                        <MessageSquare className="w-4 h-4" />
-                        Chat with Provider
-                      </button>
-                    )}
+                    <button
+                      onClick={() => {
+                        setSelectedChatUser({
+                          userId: providerDetails.user_id,
+                          fullName: providerDetails.fullName,
+                        });
+                        setShowChat(true);
+                      }}
+                      disabled={!user || user.role !== "USER"}
+                      className={`mt-4 flex items-center gap-2 px-4 py-2 rounded-xl transition
+    ${
+      !user || user.role !== "USER"
+        ? "bg-gray-400 cursor-not-allowed"
+        : "bg-green-600 hover:bg-green-700 text-white"
+    }`}
+                    >
+                      <MessageSquare className="w-4 h-4" />
+                      Chat with Provider
+                    </button>
                   </div>
                 </div>
               </div>
