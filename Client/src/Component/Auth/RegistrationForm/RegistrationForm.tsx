@@ -37,10 +37,10 @@ const RegistrationForm = ({ activeTab }: any) => {
       }
 
       if (res?.success) {
-        toast.success(res?.message || "Registration successful!");
+        toast.success("Registration successful!");
         router.push("/login");
       } else {
-        toast.error(res?.message || "Something went wrong. Please try again.");
+        toast.error("Something went wrong. Please try again.");
       }
 
       reset();

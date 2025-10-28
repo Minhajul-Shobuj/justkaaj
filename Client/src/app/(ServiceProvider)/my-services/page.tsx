@@ -42,13 +42,6 @@ const MyService = () => {
     );
   }
 
-  if (services.length === 0) {
-    return (
-      <div className="text-center text-gray-600 py-10 text-lg">
-        No services found.
-      </div>
-    );
-  }
   return (
     <>
       <Navbar />
@@ -57,6 +50,11 @@ const MyService = () => {
           <h1 className="text-3xl sm:text-4xl font-bold text-green-700 mb-2 text-center">
             My Services
           </h1>
+          {services.length === 0 && (
+            <div className="text-center text-gray-600 py-10 text-lg">
+              No services found.
+            </div>
+          )}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {services.map((service) => (
               <ServiceCard key={service.id} service={service} />

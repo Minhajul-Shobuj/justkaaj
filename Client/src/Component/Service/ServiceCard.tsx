@@ -12,7 +12,7 @@ const ServiceCard = ({ service }: ServiceCardProps) => {
   const providerName = provider?.fullName || "Unknown Provider";
   const providerPhoto = provider?.user?.profileImage || null;
   const rating = service?.avg_rating ?? 0;
-  const categories = service.category || [];
+  const categories = service.serviceOnCategory || [];
 
   return (
     <div
@@ -89,10 +89,10 @@ const ServiceCard = ({ service }: ServiceCardProps) => {
           <div className="flex flex-wrap gap-2 w-full mt-2">
             {categories.map((cat) => (
               <span
-                key={cat.id}
+                key={cat.category.id}
                 className="bg-green-100 text-green-700 text-xs px-2 py-0.5 rounded-full font-medium"
               >
-                {cat.name}
+                {cat.category.name}
               </span>
             ))}
           </div>

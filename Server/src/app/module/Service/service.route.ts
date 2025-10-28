@@ -19,6 +19,18 @@ router.get(
   auth(UserRole.SERVICE_PROVIDER),
   ServiceController.getMyServices
 );
+router.patch(
+  '/my-services/:id',
+  auth(UserRole.SERVICE_PROVIDER),
+  validateRequest(ServiceValidation.updateServiceSchemaValidation),
+  ServiceController.updateService
+);
+
+router.delete(
+  '/my-services/:id',
+  auth(UserRole.SERVICE_PROVIDER),
+  ServiceController.deleteService
+);
 
 router.get('/:id', ServiceController.getServiceById);
 

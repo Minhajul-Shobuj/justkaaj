@@ -98,7 +98,7 @@ model Service {
 
   availabilities  ServiceAvailability[]   
   providerServices ProviderServices[]
-  category         Service_Category[]
+  serviceOnCategory ServiceOnCategory[]
   orders Order[]
 
   @@map("services")
@@ -128,6 +128,19 @@ model ProviderServices{
 
   @@map("providerServices")
 }
+model ServiceOnCategory {
+  id          String   @id @default(ulid())
+  serviceId   String
+  categoryId  String
+  createdAt  DateTime @default(now())
+
+  // relations
+  service     Service         @relation(fields: [serviceId], references: [id])
+  category    Service_Category @relation(fields: [categoryId], references: [id])
+
+  @@unique([serviceId, categoryId])  
+  @@map("service_on_category")       
+}
 
 model Service_Category{
   id String @id @default(ulid())
@@ -137,8 +150,7 @@ model Service_Category{
   parent_categoryId String
   parent_category Parent_category @relation(fields: [parent_categoryId], references: [id])
 
-  service_id String?
-  service Service? @relation(fields: [service_id], references: [id])
+  serviceOnCategory ServiceOnCategory[]
  
  @@map("service_category")
 }

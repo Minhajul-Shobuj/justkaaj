@@ -73,26 +73,18 @@ const ServiceHistory = () => {
   };
 
   if (loading) return <Loading />;
-
-  if (!orders.length)
-    return (
-      <>
-        <Navbar />
-        <div className="text-center py-20 text-black">
-          No service history found 😔
-        </div>
-        <Footer />
-      </>
-    );
-
   return (
     <>
       <Navbar />
       <div className="max-w-6xl mx-auto px-4 py-10 text-black min-h-screen">
-        <h1 className="text-2xl font-bold mb-6 flex items-center gap-2">
+        <h1 className="text-3xl sm:text-4xl font-bold text-green-700 mb-2 text-center">
           🧾 My Service History
         </h1>
-
+        {orders.length === 0 && (
+          <div className="text-center py-20 text-black">
+            No service history found 😔
+          </div>
+        )}
         <div className="grid gap-6 pb-16">
           {" "}
           {/* ✅ Added bottom padding to prevent footer overlap */}

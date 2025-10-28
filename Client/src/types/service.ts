@@ -9,8 +9,15 @@ export type TServiceCategory = {
   id: string;
   name: string;
   is_Active: boolean;
-
   parent_categoryId: string;
+};
+export type TServiceOnCategory = {
+  category: {
+    id: string;
+    name: string;
+    is_Active: boolean;
+    parent_categoryId: string;
+  };
 };
 export type TProviderService = {
   providerId: string;
@@ -52,6 +59,7 @@ export type TService = {
   availabilities: TAvailability[];
   providerServices: TProviderService[];
   category: TServiceCategory[];
+  serviceOnCategory?: TServiceOnCategory[];
   is_featured?: boolean;
   avg_rating?: number;
   is_active?: boolean;
