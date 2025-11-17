@@ -1,9 +1,8 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { Request } from 'express';
 import bcrypt from 'bcrypt';
-import { PrismaClient, UserRole } from '@prisma/client';
-
-const prisma = new PrismaClient();
+import { UserRole } from '@prisma/client';
+import { prisma } from '../../utils/prisma';
 
 const createUserIntoDb = async (req: Request) => {
   const data = req.body;
